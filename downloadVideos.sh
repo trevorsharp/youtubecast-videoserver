@@ -15,6 +15,8 @@ yt-dlp \
     $videoId
 
 ffmpeg \
+    -hide_banner \
+    -loglevel quiet \
     -i "$videoDirectory/$videoId.mkv" \
     -c:v libx264 \
     -c:a copy \

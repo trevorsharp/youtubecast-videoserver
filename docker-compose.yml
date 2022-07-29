@@ -1,28 +1,28 @@
 version: '3'
 services:
-  youtubecast-video-server-api:
+  youtubecast-videoserver-api:
     build: ./api
-    image: trevorsharp/youtubecast-video-server-api:latest
-    container_name: youtubecast-video-server-api
+    image: trevorsharp/youtubecast-videoserver-api:latest
+    container_name: youtubecast-videoserver-api
     restart: unless-stopped
     volumes:
       - ./content:/content
     environment:
       - 'VIDEO_QUALITY=2160p'
     networks:
-      - youtubecast-video-server
+      - youtubecast-videoserver
 
-  youtubecast-video-server:
+  youtubecast-videoserver:
     build: ./nginx
-    image: trevorsharp/youtubecast-video-server:latest
-    container_name: youtubecast-video-server
+    image: trevorsharp/youtubecast-videoserver:latest
+    container_name: youtubecast-videoserver
     restart: unless-stopped
     volumes:
       - ./content:/www/content
     ports:
       - 3000:80
     networks:
-      - youtubecast-video-server
+      - youtubecast-videoserver
 
 networks:
-  youtubecast-video-server:
+  youtubecast-videoserver:

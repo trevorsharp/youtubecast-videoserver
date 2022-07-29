@@ -11,7 +11,7 @@ touch $videoDirectory/$videoId.temp
 yt-dlp \
     -f "bv[height<=${maxHeight}]+ba[ext=m4a]" \
     --merge-output-format=mkv \
-    -o "$videoDirectory/%(id)s.temp.%(ext)s" \
+    -o "$videoDirectory/%(id)s.%(ext)s" \
     $videoId
 
 ffmpeg \
@@ -20,6 +20,8 @@ ffmpeg \
     -c:a copy \
     -preset veryfast \
     -r 30 \
-    $videoDirectory/$videoId.mp4 < /dev/null
+    $videoDirectory/$videoId.temp.mp4 < /dev/null
+
+mv $videoDirectory/$videoId.temp.mp4 $videoDirectory/$videoId.mp4
 
 rm $videoDirectory/$videoId.temp

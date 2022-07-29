@@ -13,6 +13,8 @@ audioUrl=$(python3 getAudioUrl.py $youtubeVideoUrl)
 mkdir -p $videoDirectory
 
 ffmpeg \
+    -hide_banner \
+    -loglevel quiet \
     -i $videoUrl \
     -i $audioUrl \
     -c:v libx264 \

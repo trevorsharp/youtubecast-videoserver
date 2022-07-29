@@ -3,6 +3,9 @@ import { spawn } from 'child_process';
 import express from 'express';
 import { z } from 'zod';
 
+const port = 80;
+const contentDirectory = '/content';
+
 const VIDEO_QUALITY = z
   .string()
   .regex(/^(2160|1440|1080).*$/)
@@ -14,14 +17,14 @@ const downloadVideos = (videoList: string[]): void => {
 
   videoList.slice(0, Math.min(videoList.length, 2)).forEach((videoId) => {
     if (
-      !fs.existsSync(`/content/${videoId}.mp4`) &&
-      !fs.existsSync(`/content/${videoId}.temp.mp4`)
+      !fs.existsSync(`${contentDirectory}/${videoId}.mp4`) &&
+      !fs.existsSync(`${contentDirectory}/${videoId}.temp`)
     ) {
       console.log(`Starting Download: ${videoId}`);
 
       const videoDownloadProcess = spawn('sh', [
         './downloadVideos.sh',
-        `/content`,
+        contentDirectory,
         videoId,
         `${VIDEO_QUALITY}`,
       ]);
@@ -36,7 +39,7 @@ const downloadVideos = (videoList: string[]): void => {
 
 const app = express();
 app.use(express.json());
-const port = 80;
+app.use(contentDirectory, express.static(`${contentDirectory}/`));
 
 app.post('/', async (req, res) => {
   try {
@@ -56,7 +59,7 @@ app.get('/:videoId', (req, res) => {
   try {
     const videoId = req.params.videoId;
 
-    const videoFilePath = `/content/${videoId}.mp4`;
+    const videoFilePath = `${contentDirectory}/${videoId}.mp4`;
 
     if (!fs.existsSync(videoFilePath)) return res.status(404).send();
 

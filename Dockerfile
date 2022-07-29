@@ -1,7 +1,9 @@
 FROM node:lts-alpine
 
 RUN apk add --no-cache yarn ffmpeg python3 py3-pip bash
-RUN pip install pytube
+RUN set -x && \
+  wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
+  chmod a+x /usr/bin/yt-dlp
 
 WORKDIR /app
 
@@ -14,11 +16,11 @@ COPY ./tsconfig.json ./tsconfig.json
 RUN yarn build
 
 COPY ./downloadVideos.sh ./downloadVideos.sh
-COPY ./getVideoUrl.py ./getVideoUrl.py
-COPY ./getAudioUrl.py ./getAudioUrl.py
 
 RUN chmod +x ./downloadVideos.sh
 
 EXPOSE 80
 
-CMD pip install pytube && yarn start
+CMD /usr/bin/yt-dlp -U && \
+  /usr/bin/yt-dlp --version && \
+  yarn start

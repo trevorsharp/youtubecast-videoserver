@@ -10,6 +10,7 @@ touch $videoDirectory/$videoId.temp
 
 yt-dlp \
     -f "bv[height<=${maxHeight}]+ba[ext=m4a]" \
+    -S "height,ext" \
     --merge-output-format=mkv \
     -o "$videoDirectory/%(id)s.%(ext)s" \
     $videoId

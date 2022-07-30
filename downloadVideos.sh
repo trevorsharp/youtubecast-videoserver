@@ -4,27 +4,27 @@ videoDirectory=$1
 videoId=$2
 maxHeight=$3
 
-mkdir -p $videoDirectory
+mkdir -p "$videoDirectory"
 
-touch $videoDirectory/$videoId.temp
+touch "$videoDirectory/$videoId.temp"
 
 yt-dlp \
     -f "bv[height<=${maxHeight}]" \
     -S "height,ext" \
     -o "$videoDirectory/%(id)s.video" \
-    $videoId
+    "$videoId"
 
 yt-dlp \
     -f "ba[ext=m4a]" \
     -o "$videoDirectory/%(id)s.audio" \
-    $videoId
+    "$videoId"
 
 videoCodec=$(ffprobe \
     -v error \
     -select_streams v:0 \
     -show_entries stream=codec_name \
     -of default=noprint_wrappers=1:nokey=1 \
-    $videoDirectory/$videoId.video)
+    "$videoDirectory/$videoId.video")
 
 if [ "$videoCodec" = "h264" ]; then
     ffmpeg \
@@ -36,7 +36,7 @@ if [ "$videoCodec" = "h264" ]; then
         -f hls \
         -hls_playlist_type vod \
         -hls_flags single_file \
-        $videoDirectory/$videoId.m3u8
+        "$videoDirectory/$videoId.m3u8"
 else
     ffmpeg \
         -hide_banner \
@@ -49,7 +49,7 @@ else
         -f hls \
         -hls_playlist_type vod \
         -hls_flags single_file \
-        $videoDirectory/$videoId.m3u8
+        "$videoDirectory/$videoId.m3u8"
 fi
 
-rm $videoDirectory/$videoId.temp $videoDirectory/$videoId.video $videoDirectory/$videoId.audio
+rm "$videoDirectory/$videoId.temp" "$videoDirectory/$videoId.video" "$videoDirectory/$videoId.audio"

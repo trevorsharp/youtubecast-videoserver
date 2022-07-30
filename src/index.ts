@@ -22,6 +22,8 @@ const downloadVideo = (videoId: string): void => {
     `${VIDEO_QUALITY}`,
   ]);
 
+  videoDownloadProcess.stdout.on('data', (data) => console.log(`[downloader] ${data}`));
+  videoDownloadProcess.stderr.on('data', (error) => console.log(`[downloader] ${error}`));
   videoDownloadProcess.on('error', (error) =>
     console.log(`[downloader] Download Error: ${error.message}`)
   );
@@ -36,7 +38,7 @@ const queueProcessor = () =>
   fs.readdir(CONTENT_DIRECTORY, (_, files) => {
     if (downloadQueue.length > 0) {
       if (files.filter((file) => file.endsWith('.temp')).length > 0) {
-        console.log('[downloader] Waiting For Download To Finish ...');
+        console.log('[downloader] Queue Waiting For Download To Finish ...');
         return;
       }
       downloadVideo(downloadQueue.shift()!);

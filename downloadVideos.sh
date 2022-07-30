@@ -29,7 +29,6 @@ videoCodec=$(ffprobe \
 if [ "$videoCodec" = "h264" ]; then
     ffmpeg \
         -hide_banner \
-        -loglevel quiet \
         -i "$videoDirectory/$videoId.video" \
         -i "$videoDirectory/$videoId.audio" \
         -c:v copy \
@@ -41,7 +40,6 @@ if [ "$videoCodec" = "h264" ]; then
 else
     ffmpeg \
         -hide_banner \
-        -loglevel quiet \
         -i "$videoDirectory/$videoId.video" \
         -i "$videoDirectory/$videoId.audio" \
         -c:v libx264 \

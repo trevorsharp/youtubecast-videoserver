@@ -15,7 +15,7 @@ yt-dlp \
     -o "$videoDirectory/%(id)s.%(ext)s" \
     $videoId
 
-videoCodec = $(ffprobe \
+videoCodec=$(ffprobe \
     -v error \
     -select_streams v:0 \
     -show_entries stream=codec_name \

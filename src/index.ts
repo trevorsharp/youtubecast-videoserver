@@ -17,7 +17,7 @@ const downloadVideos = (videoList: string[]): void => {
 
   videoList.slice(0, Math.min(videoList.length, 2)).forEach((videoId) => {
     if (
-      !fs.existsSync(`${contentDirectory}/${videoId}.mp4`) &&
+      !fs.existsSync(`${contentDirectory}/${videoId}.m3u8`) &&
       !fs.existsSync(`${contentDirectory}/${videoId}.temp`)
     ) {
       console.log(`Starting Download: ${videoId}`);
@@ -59,7 +59,7 @@ app.get('/:videoId', (req, res) => {
   try {
     const videoId = req.params.videoId;
 
-    const videoFilePath = `${contentDirectory}/${videoId}.mp4`;
+    const videoFilePath = `${contentDirectory}/${videoId}.m3u8`;
 
     if (!fs.existsSync(videoFilePath)) return res.status(404).send();
 

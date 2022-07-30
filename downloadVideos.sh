@@ -23,8 +23,9 @@ ffmpeg \
     -c:a copy \
     -preset veryfast \
     -r 30 \
-    $videoDirectory/$videoId.temp.mp4 < /dev/null
-
-mv $videoDirectory/$videoId.temp.mp4 $videoDirectory/$videoId.mp4
+    -f hls \
+    -hls_playlist_type vod \
+    -hls_flags single_file \
+    $videoDirectory/$videoId.m3u8
 
 rm $videoDirectory/$videoId.temp

@@ -53,7 +53,8 @@ const queueVideos = (videoList: string[]): void => {
   videoList.slice(0, Math.min(videoList.length, 2)).forEach((videoId) => {
     if (
       !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.m3u8`) &&
-      !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.temp`)
+      !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.temp`) &&
+      !downloadQueue.find((x) => x === videoId)
     ) {
       downloadQueue.push(videoId);
       console.log(

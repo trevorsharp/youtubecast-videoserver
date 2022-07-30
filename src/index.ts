@@ -29,8 +29,8 @@ const downloadVideos = (videoList: string[]): void => {
         `${VIDEO_QUALITY}`,
       ]);
 
-      videoDownloadProcess.stdout.on('data', (data) => process.stdout.write(data));
-      videoDownloadProcess.stderr.on('data', (data) => process.stdout.write(data));
+      videoDownloadProcess.stdout.on('data', (data) => console.log(data.toString()));
+      videoDownloadProcess.stderr.on('data', (data) => console.log(data.toString()));
       videoDownloadProcess.on('error', (error) => console.log(`Download Error: ${error.message}`));
       videoDownloadProcess.on('close', () => console.log(`Finished Download: ${videoId}`));
     }

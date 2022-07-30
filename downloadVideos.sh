@@ -12,12 +12,12 @@ yt-dlp \
     -f "bv[height<=${maxHeight}]" \
     -S "height,ext" \
     -o "$videoDirectory/%(id)s.video" \
-    "$videoId"
+    "https://youtube.com/watch?v=$videoId"
 
 yt-dlp \
     -f "ba[ext=m4a]" \
     -o "$videoDirectory/%(id)s.audio" \
-    "$videoId"
+    "https://youtube.com/watch?v=$videoId"
 
 videoCodec=$(ffprobe \
     -v error \

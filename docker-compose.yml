@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./content:/content
+      - ./cookies.txt:/app/cookies.txt
     ports:
       - 3000:80
     environment:

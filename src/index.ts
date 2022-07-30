@@ -101,5 +101,7 @@ app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 fs.readdir(CONTENT_DIRECTORY, (_, files) => {
   console.log('Removing any leftover .temp files');
-  files.filter((file) => file.endsWith('.temp')).forEach((file) => fs.unlinkSync(file));
+  files
+    .filter((file) => file.endsWith('.temp'))
+    .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/file`));
 });

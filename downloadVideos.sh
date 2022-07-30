@@ -48,17 +48,4 @@ else
         $videoDirectory/$videoId.m3u8
 fi
 
-ffmpeg \
-    -hide_banner \
-    -loglevel quiet \
-    -i "$videoDirectory/$videoId.mkv" \
-    -c:v libx264 \
-    -c:a copy \
-    -preset veryfast \
-    -r 30 \
-    -f hls \
-    -hls_playlist_type vod \
-    -hls_flags single_file \
-    $videoDirectory/$videoId.m3u8
-
-rm $videoDirectory/$videoId.temp
+rm $videoDirectory/$videoId.temp $videoDirectory/$videoId.mkv

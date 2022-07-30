@@ -103,5 +103,5 @@ fs.readdir(CONTENT_DIRECTORY, (_, files) => {
   console.log('Removing any leftover .temp files');
   files
     .filter((file) => file.endsWith('.temp'))
-    .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/file`));
+    .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`));
 });

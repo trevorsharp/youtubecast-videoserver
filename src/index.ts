@@ -13,7 +13,7 @@ const VIDEO_QUALITY = z
   .parse(process.env.VIDEO_QUALITY);
 
 const downloadVideos = (videoList: string[]): void => {
-  console.log(`Received New Video List`);
+  console.log(`Processing Video List: ${videoList.find(() => true)}`);
 
   videoList.slice(0, Math.min(videoList.length, 2)).forEach((videoId) => {
     if (
@@ -29,12 +29,12 @@ const downloadVideos = (videoList: string[]): void => {
         `${VIDEO_QUALITY}`,
       ]);
 
-      videoDownloadProcess.stdout.on('data', (data) => console.log(data.toString()));
-      videoDownloadProcess.stderr.on('data', (data) => console.log(data.toString()));
       videoDownloadProcess.on('error', (error) => console.log(`Download Error: ${error.message}`));
       videoDownloadProcess.on('close', () => console.log(`Finished Download: ${videoId}`));
     }
   });
+
+  console.log(`Finished Processing Video List: ${videoList.find(() => true)}`);
 };
 
 const app = express();

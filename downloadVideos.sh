@@ -9,10 +9,14 @@ mkdir -p $videoDirectory
 touch $videoDirectory/$videoId.temp
 
 yt-dlp \
-    -f "bv[height<=${maxHeight}]+ba[ext=m4a]" \
+    -f "bv[height<=${maxHeight}]" \
     -S "height,ext" \
-    --merge-output-format=mkv \
-    -o "$videoDirectory/%(id)s.%(ext)s" \
+    -o "$videoDirectory/%(id)s.video" \
+    $videoId
+
+yt-dlp \
+    -f "ba[ext=m4a]" \
+    -o "$videoDirectory/%(id)s.audio" \
     $videoId
 
 videoCodec=$(ffprobe \
@@ -20,13 +24,14 @@ videoCodec=$(ffprobe \
     -select_streams v:0 \
     -show_entries stream=codec_name \
     -of default=noprint_wrappers=1:nokey=1 \
-    $videoDirectory/$videoId.mkv)
+    $videoDirectory/$videoId.video)
 
 if [ "$videoCodec" = "h264" ]; then
     ffmpeg \
         -hide_banner \
         -loglevel quiet \
-        -i "$videoDirectory/$videoId.mkv" \
+        -i "$videoDirectory/$videoId.video" \
+        -i "$videoDirectory/$videoId.audio" \
         -c:v copy \
         -c:a copy \
         -f hls \
@@ -37,7 +42,8 @@ else
     ffmpeg \
         -hide_banner \
         -loglevel quiet \
-        -i "$videoDirectory/$videoId.mkv" \
+        -i "$videoDirectory/$videoId.video" \
+        -i "$videoDirectory/$videoId.audio" \
         -c:v libx264 \
         -c:a copy \
         -preset veryfast \
@@ -48,4 +54,4 @@ else
         $videoDirectory/$videoId.m3u8
 fi
 
-rm $videoDirectory/$videoId.temp $videoDirectory/$videoId.mkv
+rm $videoDirectory/$videoId.temp $videoDirectory/$videoId.video $videoDirectory/$videoId.audio

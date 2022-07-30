@@ -3,43 +3,69 @@ import { spawn } from 'child_process';
 import express from 'express';
 import { z } from 'zod';
 
-const port = 80;
-const contentDirectory = '/content';
-
+const PORT = 80;
+const CONTENT_DIRECTORY = '/content';
 const VIDEO_QUALITY = z
   .string()
   .regex(/^(2160|1440|1080).*$/)
   .transform((x) => parseInt(x.slice(0, 4)))
   .parse(process.env.VIDEO_QUALITY);
 
-const downloadVideos = (videoList: string[]): void => {
-  console.log(`Processing Video List: ${videoList.find(() => true)}`);
+const downloadQueue: string[] = [];
 
-  videoList.slice(0, Math.min(videoList.length, 2)).forEach((videoId) => {
-    if (
-      !fs.existsSync(`${contentDirectory}/${videoId}.m3u8`) &&
-      !fs.existsSync(`${contentDirectory}/${videoId}.temp`)
-    ) {
-      console.log(`Starting Download: ${videoId}`);
+const downloadVideo = (videoId: string): void => {
+  console.log(`[downloader] Starting Download: ${videoId}`);
+  const videoDownloadProcess = spawn('sh', [
+    './downloadVideos.sh',
+    CONTENT_DIRECTORY,
+    videoId,
+    `${VIDEO_QUALITY}`,
+  ]);
 
-      const videoDownloadProcess = spawn('sh', [
-        './downloadVideos.sh',
-        contentDirectory,
-        videoId,
-        `${VIDEO_QUALITY}`,
-      ]);
+  videoDownloadProcess.on('error', (error) =>
+    console.log(`[downloader] Download Error: ${error.message}`)
+  );
+  videoDownloadProcess.on('close', () =>
+    console.log(
+      `[downloader] Finished Download: ${videoId} (Queue contains ${downloadQueue.length} videos)`
+    )
+  );
+};
 
-      videoDownloadProcess.on('error', (error) => console.log(`Download Error: ${error.message}`));
-      videoDownloadProcess.on('close', () => console.log(`Finished Download: ${videoId}`));
+const queueProcessor = () =>
+  fs.readdir(CONTENT_DIRECTORY, (_, files) => {
+    if (downloadQueue.length > 0) {
+      if (files.filter((file) => file.endsWith('.temp')).length > 0) {
+        console.log('[downloader] Waiting For Download To Finish ...');
+        return;
+      }
+      downloadVideo(downloadQueue.shift()!);
     }
   });
 
-  console.log(`Finished Processing Video List: ${videoList.find(() => true)}`);
+setInterval(() => queueProcessor(), 60000);
+
+const queueVideos = (videoList: string[]): void => {
+  console.log(`[processor] Received Updated Video List: ${videoList.find(() => true)}`);
+
+  videoList.slice(0, Math.min(videoList.length, 2)).forEach((videoId) => {
+    if (
+      !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.m3u8`) &&
+      !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.temp`)
+    ) {
+      downloadQueue.push(videoId);
+      console.log(
+        `[processor] Added Video To Download Queue: ${videoId} (Queue contains ${downloadQueue.length} videos)`
+      );
+    }
+  });
+
+  console.log(`[processor] Processed Video List: ${videoList.find(() => true)}`);
 };
 
 const app = express();
 app.use(express.json());
-app.use(contentDirectory, express.static(`${contentDirectory}/`));
+app.use(CONTENT_DIRECTORY, express.static(`${CONTENT_DIRECTORY}/`));
 
 app.post('/', async (req, res) => {
   try {
@@ -47,7 +73,7 @@ app.post('/', async (req, res) => {
 
     if (!request.success) return res.status(400).send();
 
-    downloadVideos(request.data);
+    queueVideos(request.data);
 
     res.status(200).send();
   } catch (error) {
@@ -59,7 +85,7 @@ app.get('/:videoId', (req, res) => {
   try {
     const videoId = req.params.videoId;
 
-    const videoFilePath = `${contentDirectory}/${videoId}.m3u8`;
+    const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
 
     if (!fs.existsSync(videoFilePath)) return res.status(404).send();
 
@@ -69,4 +95,4 @@ app.get('/:videoId', (req, res) => {
   }
 });
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

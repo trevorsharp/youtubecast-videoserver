@@ -1,100 +1,10 @@
 import fs from 'fs';
-import { spawn } from 'child_process';
 import express from 'express';
 import { z } from 'zod';
+import { addVideosToQueue } from './services/downloadService';
 
 const PORT = 80;
-
 const CONTENT_DIRECTORY = '/content';
-
-const VIDEO_QUALITY = z
-  .string()
-  .regex(/^(2160|1440|1080).*$/)
-  .transform((x) => parseInt(x.slice(0, 4)))
-  .parse(process.env.VIDEO_QUALITY);
-
-const MAX_VIDEOS_PER_FEED = z
-  .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
-  .parse(process.env.MAX_VIDEOS_PER_FEED);
-
-const CLEANUP_INTERVAL = z
-  .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
-  .parse(process.env.CLEANUP_INTERVAL);
-
-const downloadQueue: string[] = [];
-
-let cleanupInterval: NodeJS.Timeout | undefined = undefined;
-let videosToKeep: string[] = [];
-
-const downloadVideo = (videoId: string): void => {
-  console.log(`[downloader] Starting Download: ${videoId}`);
-  const videoDownloadProcess = spawn('sh', [
-    './downloadVideos.sh',
-    CONTENT_DIRECTORY,
-    videoId,
-    `${VIDEO_QUALITY}`,
-  ]);
-
-  videoDownloadProcess.stdout.on('data', (data) => console.log(`[downloader] ${data}`));
-  videoDownloadProcess.stderr.on('data', (error) => console.log(`[downloader] ${error}`));
-  videoDownloadProcess.on('error', (error) =>
-    console.log(`[downloader] Download Error: ${error.message}`)
-  );
-  videoDownloadProcess.on('close', () =>
-    console.log(
-      `[downloader] Finished Download: ${videoId} (Queue contains ${downloadQueue.length} videos)`
-    )
-  );
-};
-
-const queueProcessor = () =>
-  fs.readdir(CONTENT_DIRECTORY, (_, files) => {
-    if (downloadQueue.length > 0) {
-      if (files.filter((file) => file.endsWith('.temp')).length > 0) {
-        console.log('[downloader] Queue Waiting For Download To Finish ...');
-        return;
-      }
-      downloadVideo(downloadQueue.shift()!);
-    }
-  });
-
-setInterval(() => queueProcessor(), 60000);
-
-const queueVideos = (videoList: string[]): void => {
-  console.log(`[processor] Received Updated Video List: ${videoList.find(() => true)}`);
-
-  if (!cleanupInterval) cleanupInterval = setTimeout(cleanupVideos, CLEANUP_INTERVAL * 86400000);
-
-  videoList.slice(0, Math.min(videoList.length, MAX_VIDEOS_PER_FEED)).forEach((videoId) => {
-    if (!videosToKeep.some((x) => x === videoId)) videosToKeep.push(videoId);
-
-    if (
-      !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.m3u8`) &&
-      !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.temp`) &&
-      !downloadQueue.find((x) => x === videoId)
-    ) {
-      downloadQueue.push(videoId);
-      console.log(
-        `[processor] Added Video To Download Queue: ${videoId} (Queue contains ${downloadQueue.length} videos)`
-      );
-    }
-  });
-
-  console.log(`[processor] Processed Video List: ${videoList.find(() => true)}`);
-};
-
-const cleanupVideos = (): void => {
-  fs.readdir(CONTENT_DIRECTORY, (_, files) => {
-    console.log('[processor] Cleaning up any old video files');
-    files.forEach((file) => {
-      const videoId = file.replace(/^([^.]+)\..*$/, '$1');
-      if (!videosToKeep.some((x) => x === videoId)) fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`);
-    });
-  });
-
-  videosToKeep = [];
-  cleanupInterval = undefined;
-};
 
 const app = express();
 app.use(express.json());
@@ -106,7 +16,7 @@ app.post('/', async (req, res) => {
 
     if (!request.success) return res.status(400).send();
 
-    queueVideos(request.data);
+    addVideosToQueue(request.data);
 
     res.status(200).send();
   } catch (error) {
@@ -136,3 +46,5 @@ fs.readdir(CONTENT_DIRECTORY, (_, files) => {
     .filter((file) => file.endsWith('.temp'))
     .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`));
 });
+
+export { CONTENT_DIRECTORY };

@@ -66,7 +66,7 @@ const queueVideos = (videoList: string[]): void => {
   if (!cleanupInterval) cleanupInterval = setTimeout(cleanupVideos, CLEANUP_INTERVAL * 86400000);
 
   videoList.slice(0, Math.min(videoList.length, MAX_VIDEOS_PER_FEED)).forEach((videoId) => {
-    videosToKeep.push(videoId);
+    if (!videosToKeep.some((x) => x === videoId)) videosToKeep.push(videoId);
 
     if (
       !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.m3u8`) &&
@@ -88,7 +88,7 @@ const cleanupVideos = (): void => {
     console.log('[processor] Cleaning up any old video files');
     files.forEach((file) => {
       const videoId = file.replace(/^([^.]+)\..*$/, '$1');
-      if (!videosToKeep.some((x) => x === videoId)) console.log(`Would Delete ${file}`); // fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`);
+      if (!videosToKeep.some((x) => x === videoId)) fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`);
     });
   });
 

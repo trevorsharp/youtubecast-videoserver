@@ -6,10 +6,13 @@ const CLEANUP_INTERVAL = z
   .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
   .parse(process.env.CLEANUP_INTERVAL);
 
-let cleanupInterval: NodeJS.Timeout | undefined = undefined;
 const videosToKeep: Set<string> = new Set<string>();
+let lastUpdatedOn = new Date();
 
-const cleanupVideos = (): void => {
+setTimeout(() => {
+  // If not updated in the last 4 hours, skip cleanup
+  if (new Date().getTime() - lastUpdatedOn.getTime() > 14400000) return;
+
   fs.readdir(CONTENT_DIRECTORY, (_, files) => {
     console.log('Cleaning up any old video files');
     files.forEach((file) => {
@@ -19,11 +22,10 @@ const cleanupVideos = (): void => {
   });
 
   videosToKeep.clear();
-  cleanupInterval = undefined;
-};
+}, CLEANUP_INTERVAL * 86400000);
 
 const addVideoToKeep = (videoId: string) => {
-  if (!cleanupInterval) cleanupInterval = setTimeout(cleanupVideos, CLEANUP_INTERVAL * 86400000);
+  lastUpdatedOn = new Date();
   videosToKeep.add(videoId);
 };
 

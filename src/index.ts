@@ -4,14 +4,27 @@ import express from 'express';
 import { z } from 'zod';
 
 const PORT = 80;
+
 const CONTENT_DIRECTORY = '/content';
+
 const VIDEO_QUALITY = z
   .string()
   .regex(/^(2160|1440|1080).*$/)
   .transform((x) => parseInt(x.slice(0, 4)))
   .parse(process.env.VIDEO_QUALITY);
 
+const MAX_VIDEOS_PER_FEED = z
+  .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
+  .parse(process.env.MAX_VIDEOS_PER_FEED);
+
+const CLEANUP_INTERVAL = z
+  .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
+  .parse(process.env.CLEANUP_INTERVAL);
+
 const downloadQueue: string[] = [];
+
+let cleanupInterval: NodeJS.Timeout | undefined = undefined;
+let videosToKeep: string[] = [];
 
 const downloadVideo = (videoId: string): void => {
   console.log(`[downloader] Starting Download: ${videoId}`);
@@ -50,7 +63,11 @@ setInterval(() => queueProcessor(), 60000);
 const queueVideos = (videoList: string[]): void => {
   console.log(`[processor] Received Updated Video List: ${videoList.find(() => true)}`);
 
-  videoList.slice(0, Math.min(videoList.length, 2)).forEach((videoId) => {
+  if (!cleanupInterval) cleanupInterval = setTimeout(cleanupVideos, CLEANUP_INTERVAL * 86400000);
+
+  videoList.slice(0, Math.min(videoList.length, MAX_VIDEOS_PER_FEED)).forEach((videoId) => {
+    videosToKeep.push(videoId);
+
     if (
       !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.m3u8`) &&
       !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.temp`) &&
@@ -64,6 +81,19 @@ const queueVideos = (videoList: string[]): void => {
   });
 
   console.log(`[processor] Processed Video List: ${videoList.find(() => true)}`);
+};
+
+const cleanupVideos = (): void => {
+  fs.readdir(CONTENT_DIRECTORY, (_, files) => {
+    console.log('[processor] Cleaning up any old video files');
+    files.forEach((file) => {
+      const videoId = file.replace(/^([^.]+)\..*$/, '$1');
+      if (!videosToKeep.some((x) => x === videoId)) console.log(`Would Delete ${file}`); // fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`);
+    });
+  });
+
+  videosToKeep = [];
+  cleanupInterval = undefined;
 };
 
 const app = express();
@@ -101,7 +131,7 @@ app.get('/:videoId', (req, res) => {
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 fs.readdir(CONTENT_DIRECTORY, (_, files) => {
-  console.log('Removing any leftover .temp files');
+  console.log('Removing any .temp files');
   files
     .filter((file) => file.endsWith('.temp'))
     .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`));

@@ -29,4 +29,12 @@ const addVideoToKeep = (videoId: string) => {
   videosToKeep.add(videoId);
 };
 
-export { addVideoToKeep };
+const cleanupTempFiles = () =>
+  fs.readdir(CONTENT_DIRECTORY, (_, files) => {
+    console.log('Removing any .temp files');
+    files
+      .filter((file) => file.endsWith('.temp'))
+      .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`));
+  });
+
+export { addVideoToKeep, cleanupTempFiles };

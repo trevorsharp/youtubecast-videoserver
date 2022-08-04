@@ -1,7 +1,6 @@
 {
-  "name": "youtubecast-videoserver-api",
+  "name": "youtubecast-videoserver",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
     "build": "rm -rf ./build && tsc --build tsconfig.json",
     "start": "node ./build/index.js"

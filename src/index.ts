@@ -2,6 +2,7 @@ import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
 import { addVideosToQueue } from './services/downloadService';
+import { cleanupTempFiles } from './services/cleanupService';
 
 const PORT = 80;
 const CONTENT_DIRECTORY = '/content';
@@ -39,12 +40,6 @@ app.get('/:videoId', (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-
-fs.readdir(CONTENT_DIRECTORY, (_, files) => {
-  console.log('Removing any .temp files');
-  files
-    .filter((file) => file.endsWith('.temp'))
-    .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`));
-});
+cleanupTempFiles();
 
 export { CONTENT_DIRECTORY };

@@ -1,6 +1,7 @@
 # YouTubeCast Video Server
 
-Video server to download and host high quality video files for YouTubeCast. Unfamiliar with YouTubeCast? — Go to [youtubecast.com](https://youtubecast.com) to check it out!
+Video server to download and host high quality video files for YouTubeCast.  
+Unfamiliar with YouTubeCast? — Go to [youtubecast.com](https://youtubecast.com) to check it out!
 
 ## Features
 
@@ -43,4 +44,6 @@ services:
       - CLEANUP_INTERVAL=1
 ```
 
-Create a file named `docker-compose.yml` with the contents above. Point the volume for `/container` to the folder where you want your video files to be stored. Add in your settings for maximum quality (`1080`, `1440`, or `2160`), number of videos to download per feed (at least 1), and interval for how frequently to cleanup old video files (in days).
+1. Create a file named `docker-compose.yml` with the contents above. 
+2. Point the volume for `/container` to the folder where you want your video files to be stored. 
+3. Add in your settings for maximum quality (`1080`, `1440`, or `2160`), number of videos to download per feed (at least 1), and interval for how frequently to cleanup old video files (in days).

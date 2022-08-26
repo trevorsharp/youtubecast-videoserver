@@ -16,6 +16,7 @@ setTimeout(() => {
   fs.readdir(CONTENT_DIRECTORY, (_, files) => {
     console.log('Cleaning up any old video files');
     console.log('Videos to keep count', videosToKeep.size);
+
     files.forEach((file) => {
       const videoId = file.replace(/^([^.]+)\..*$/, '$1');
       if (!videosToKeep.has(videoId)) {
@@ -23,9 +24,9 @@ setTimeout(() => {
         // fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`);
       }
     });
-  });
 
-  videosToKeep.clear();
+    videosToKeep.clear();
+  });
 }, CLEANUP_INTERVAL * 86400000);
 
 const addVideoToKeep = (videoId: string) => {

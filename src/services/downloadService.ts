@@ -6,7 +6,7 @@ import { addVideoToKeep } from './cleanupService';
 
 const VIDEO_QUALITY = z
   .string()
-  .regex(/^(2160|1440|1080).*$/)
+  .regex(/^(2160|1440|1080|720|480|360).*$/)
   .transform((x) => parseInt(x.slice(0, 4)))
   .parse(process.env.VIDEO_QUALITY);
 

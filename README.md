@@ -24,6 +24,7 @@ To run this application using Docker:
 2. Run `docker-compose up -d` in the folder where your `docker-compose.yml` lives
 3. Check the logs using `docker-compose logs -f` to see if there are any errors in your configuration
 4. Add `?videoServer=example.com` to the end of your YouTubeCast feed url (replace `example.com` with your hostname)
+5. Go to `https://youtubecast.com?setVideoServer=example.com` to save your video server's address in your browser's cookies. All feeds generated from that browser will automatically append `?videoServer=example.com` to your feed URLs (replace `example.com` with your hostname)
 
 ### docker-compose.yml
 
@@ -44,6 +45,8 @@ services:
       - CLEANUP_INTERVAL=1
 ```
 
-1. Create a file named `docker-compose.yml` with the contents above. 
-2. Point the volume for `/container` to the folder where you want your video files to be stored. 
-3. Add in your settings for maximum quality (`1080`, `1440`, or `2160`), number of videos to download per feed (at least 1), and interval for how frequently to cleanup old video files (in days).
+1. Create a file named `docker-compose.yml` with the contents above.
+2. Point the volume for `/content` to the folder where you want your video files to be stored.
+3. Add the maximum quality to download based on video height (`2160`, `1440`, `1080`, `720`, `480`, or `360`)
+4. Add the minimum number of videos to keep downloaded per feed (at least 1)
+5. Add the interval for how frequently to cleanup old video files (in days / at least 1)

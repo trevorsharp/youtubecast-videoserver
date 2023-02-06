@@ -29,9 +29,12 @@ app.get('/:videoId', (req, res) => {
   try {
     const videoId = req.params.videoId;
 
-    const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}${
-      ENABLE_DYNAMIC_QUALITY ? '.dynamic' : ''
-    }.m3u8`;
+    if (ENABLE_DYNAMIC_QUALITY) {
+      const dynamicVideoFilePath = `${CONTENT_DIRECTORY}/${videoId}.dynamic.m3u8`;
+      if (fs.existsSync(dynamicVideoFilePath)) return res.status(200).send(dynamicVideoFilePath);
+    }
+
+    const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
 
     if (!fs.existsSync(videoFilePath)) return res.status(404).send();
 

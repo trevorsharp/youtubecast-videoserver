@@ -9,7 +9,7 @@ mkdir -p "$videoDirectory"
 
 touch "$videoDirectory/$videoId.temp"
 
-if [[ "$dynamicQuality" == "true" && ("$maxHeight" == "2160" || "$maxHeight" == "1440" || "maxHeight" == "1080") ]]; then
+if [ "$dynamicQuality" == "true" ]; then
     if [ -e cookies.txt ]
     then
         yt-dlp \

@@ -43,7 +43,7 @@ const downloadVideo = (videoId: string): void => {
     CONTENT_DIRECTORY,
     videoId,
     `${VIDEO_QUALITY}`,
-    `${ENABLE_DYNAMIC_QUALITY}`,
+    ENABLE_DYNAMIC_QUALITY && VIDEO_QUALITY > 720 ? 'true' : 'false',
   ]);
 
   videoDownloadProcess.stdout.on('data', (data) => console.log(`${data}`));

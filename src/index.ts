@@ -1,7 +1,7 @@
 import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
-import { addVideosToQueue } from './services/downloadService';
+import { addVideosToQueue, ENABLE_DYNAMIC_QUALITY } from './services/downloadService';
 import { cleanupTempFiles } from './services/cleanupService';
 
 const PORT = 80;
@@ -29,7 +29,9 @@ app.get('/:videoId', (req, res) => {
   try {
     const videoId = req.params.videoId;
 
-    const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
+    const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}${
+      ENABLE_DYNAMIC_QUALITY ? '.dynamic' : ''
+    }.m3u8`;
 
     if (!fs.existsSync(videoFilePath)) return res.status(404).send();
 

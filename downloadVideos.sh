@@ -3,10 +3,39 @@
 videoDirectory=$1
 videoId=$2
 maxHeight=$3
+dynamicQuality=$4
 
 mkdir -p "$videoDirectory"
 
 touch "$videoDirectory/$videoId.temp"
+
+if [[ "$dynamicQuality" == "true" && ("$maxHeight" == "2160" || "$maxHeight" == "1440" || "maxHeight" == "1080") ]]; then
+    if [ -e cookies.txt ]
+    then
+        yt-dlp \
+            -f 22 \
+            -o "$videoDirectory/%(id)s.min.video" \
+            --cookies cookies.txt \
+            "https://youtube.com/watch?v=$videoId"
+    else
+        yt-dlp \
+            -f 22 \
+            -o "$videoDirectory/%(id)s.min.video" \
+            "https://youtube.com/watch?v=$videoId"
+    fi
+
+    ffmpeg \
+        -hide_banner \
+        -i "$videoDirectory/$videoId.min.video" \
+        -c:v copy \
+        -c:a copy \
+        -f hls \
+        -hls_playlist_type vod \
+        -hls_flags single_file \
+        "$videoDirectory/$videoId.min.m3u8"
+
+    rm "$videoDirectory/$videoId.min.video"
+fi
 
 if [ -e cookies.txt ]
 then
@@ -40,7 +69,8 @@ videoCodec=$(ffprobe \
     -select_streams v:0 \
     -show_entries stream=codec_name \
     -of default=noprint_wrappers=1:nokey=1 \
-    "$videoDirectory/$videoId.video")
+    "$videoDirectory/$videoId.video" \
+    | head -n 1)
 
 if [ "$videoCodec" = "h264" ]; then
     ffmpeg \
@@ -68,4 +98,63 @@ else
         "$videoDirectory/$videoId.m3u8"
 fi
 
-rm "$videoDirectory/$videoId.temp" "$videoDirectory/$videoId.video" "$videoDirectory/$videoId.audio"
+rm "$videoDirectory/$videoId.video" "$videoDirectory/$videoId.audio"
+
+if [ -e "$videoDirectory/$videoId.min.m3u8" ]; then
+
+    minBandwidth=$(ffprobe \
+        -v error \
+        -show_entries format=bit_rate \
+        -of default=noprint_wrappers=1:nokey=1 \
+        "$videoDirectory/$videoId.min.ts" \
+        | head -n 1)
+    
+    minWidth=$(ffprobe \
+        -v error \
+        -select_streams v:0 \
+        -show_entries stream=coded_width \
+        -of default=noprint_wrappers=1:nokey=1 \
+        "$videoDirectory/$videoId.min.ts" \
+        | head -n 1)
+    
+    minHeight=$(ffprobe \
+        -v error \
+        -select_streams v:0 \
+        -show_entries stream=coded_height \
+        -of default=noprint_wrappers=1:nokey=1 \
+        "$videoDirectory/$videoId.min.ts" \
+        | head -n 1)
+
+    bandwidth=$(ffprobe \
+        -v error \
+        -show_entries format=bit_rate \
+        -of default=noprint_wrappers=1:nokey=1 \
+        "$videoDirectory/$videoId.ts" \
+        | head -n 1)
+
+    width=$(ffprobe \
+        -v error \
+        -select_streams v:0 \
+        -show_entries stream=coded_width \
+        -of default=noprint_wrappers=1:nokey=1 \
+        "$videoDirectory/$videoId.ts" \
+        | head -n 1)
+    
+    height=$(ffprobe \
+        -v error \
+        -select_streams v:0 \
+        -show_entries stream=coded_height \
+        -of default=noprint_wrappers=1:nokey=1 \
+        "$videoDirectory/$videoId.ts" \
+        | head -n 1)
+
+    touch "$videoDirectory/$videoId.dynamic.m3u8"
+
+    echo "#EXTM3U" >> "$videoDirectory/$videoId.dynamic.m3u8"
+    echo "#EXT-X-STREAM-INF:BANDWIDTH=$minBandwidth,RESOLUTION=${minWidth}x${minHeight}" >> "$videoDirectory/$videoId.dynamic.m3u8"
+    echo "$videoId.min.m3u8" >> "$videoDirectory/$videoId.dynamic.m3u8"
+    echo "#EXT-X-STREAM-INF:BANDWIDTH=$bandwidth,RESOLUTION=${width}x${height}" >> "$videoDirectory/$videoId.dynamic.m3u8"
+    echo "$videoId.m3u8" >> "$videoDirectory/$videoId.dynamic.m3u8"
+fi
+
+rm "$videoDirectory/$videoId.temp"

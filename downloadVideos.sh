@@ -108,22 +108,6 @@ if [ -e "$videoDirectory/$videoId.min.m3u8" ]; then
         -of default=noprint_wrappers=1:nokey=1 \
         "$videoDirectory/$videoId.min.ts" \
         | head -n 1)
-    
-    minWidth=$(ffprobe \
-        -v error \
-        -select_streams v:0 \
-        -show_entries stream=coded_width \
-        -of default=noprint_wrappers=1:nokey=1 \
-        "$videoDirectory/$videoId.min.ts" \
-        | head -n 1)
-    
-    minHeight=$(ffprobe \
-        -v error \
-        -select_streams v:0 \
-        -show_entries stream=coded_height \
-        -of default=noprint_wrappers=1:nokey=1 \
-        "$videoDirectory/$videoId.min.ts" \
-        | head -n 1)
 
     bandwidth=$(ffprobe \
         -v error \
@@ -132,28 +116,12 @@ if [ -e "$videoDirectory/$videoId.min.m3u8" ]; then
         "$videoDirectory/$videoId.ts" \
         | head -n 1)
 
-    width=$(ffprobe \
-        -v error \
-        -select_streams v:0 \
-        -show_entries stream=coded_width \
-        -of default=noprint_wrappers=1:nokey=1 \
-        "$videoDirectory/$videoId.ts" \
-        | head -n 1)
-    
-    height=$(ffprobe \
-        -v error \
-        -select_streams v:0 \
-        -show_entries stream=coded_height \
-        -of default=noprint_wrappers=1:nokey=1 \
-        "$videoDirectory/$videoId.ts" \
-        | head -n 1)
-
     touch "$videoDirectory/$videoId.dynamic.m3u8"
 
     echo "#EXTM3U" >> "$videoDirectory/$videoId.dynamic.m3u8"
-    echo "#EXT-X-STREAM-INF:BANDWIDTH=$minBandwidth,RESOLUTION=${minWidth}x${minHeight}" >> "$videoDirectory/$videoId.dynamic.m3u8"
+    echo "#EXT-X-STREAM-INF:BANDWIDTH=$minBandwidth" >> "$videoDirectory/$videoId.dynamic.m3u8"
     echo "$videoId.min.m3u8" >> "$videoDirectory/$videoId.dynamic.m3u8"
-    echo "#EXT-X-STREAM-INF:BANDWIDTH=$bandwidth,RESOLUTION=${width}x${height}" >> "$videoDirectory/$videoId.dynamic.m3u8"
+    echo "#EXT-X-STREAM-INF:BANDWIDTH=$bandwidth" >> "$videoDirectory/$videoId.dynamic.m3u8"
     echo "$videoId.m3u8" >> "$videoDirectory/$videoId.dynamic.m3u8"
 fi
 

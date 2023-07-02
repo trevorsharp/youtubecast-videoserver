@@ -13,7 +13,7 @@ app.use(CONTENT_DIRECTORY, express.static(`${CONTENT_DIRECTORY}/`));
 
 let isTemporarilyDisabled = false;
 
-app.get('/', async (_, res) => res.sendFile('./index.html'));
+app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
 
 app.post('/disable', async (_, res) => {
   isTemporarilyDisabled = true;

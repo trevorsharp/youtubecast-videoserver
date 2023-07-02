@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <title>YouTubeCast Video Server</title>
+  </head>
+  <body>
+    <h2>YouTubeCast Video Server is Running!</h2>
+    <button id="disableButton">Temporarily Disable Video Server</button>
+    <p id="response"></p>
+    <script>
+      const disableButton = document.getElementById('disableButton');
+      const response = document.getElementById('response');
+      disableButton.onclick = () =>
+        fetch('/disable', { method: 'POST' })
+          .then(() => (response.innerText = 'Successfully disabled video server!'))
+          .catch(() => (response.innerText = 'Failed to diable video server'));
+    </script>
+  </body>
+</html>

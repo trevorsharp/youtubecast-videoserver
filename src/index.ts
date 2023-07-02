@@ -11,7 +11,15 @@ const app = express();
 app.use(express.json());
 app.use(CONTENT_DIRECTORY, express.static(`${CONTENT_DIRECTORY}/`));
 
-app.get('/', async (_, res) => res.status(200).send('YouTubeCast Video Server is Running!'));
+let isTemporarilyDisabled = false;
+
+app.get('/', async (_, res) => res.status(200).send('./index.html'));
+
+app.post('/disable', async (_, res) => {
+  isTemporarilyDisabled = true;
+  setTimeout(() => (isTemporarilyDisabled = false), 5 * 60 * 1000);
+  res.status(200).send('YouTubeCast Video Server is temporarily disabled');
+});
 
 app.post('/', async (req, res) => {
   try {
@@ -30,6 +38,8 @@ app.post('/', async (req, res) => {
 app.get('/:videoId', (req, res) => {
   try {
     const videoId = req.params.videoId;
+
+    if (isTemporarilyDisabled) return res.status(404).send();
 
     if (ENABLE_DYNAMIC_QUALITY) {
       const dynamicVideoFilePath = `${CONTENT_DIRECTORY}/${videoId}.dynamic.m3u8`;

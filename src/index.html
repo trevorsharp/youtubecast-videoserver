@@ -1,11 +1,26 @@
 <html>
   <head>
     <title>YouTubeCast Video Server</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+      }
+
+      #container {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin: 20px;
+      }
+    </style>
   </head>
   <body>
-    <h2>YouTubeCast Video Server is Running!</h2>
-    <button id="disableButton">Temporarily Disable Video Server</button>
-    <p id="response"></p>
+    <div id="container">
+      <h2>YouTubeCast Video Server</h2>
+      <button id="disableButton">Temporarily Disable</button>
+      <p id="response"></p>
+    </div>
     <script>
       const disableButton = document.getElementById('disableButton');
       const response = document.getElementById('response');

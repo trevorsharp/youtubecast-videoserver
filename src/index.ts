@@ -11,6 +11,8 @@ const app = express();
 app.use(express.json());
 app.use(CONTENT_DIRECTORY, express.static(`${CONTENT_DIRECTORY}/`));
 
+app.get('/', async (_, res) => res.status(200).send('YouTubeCast Video Server is Running!'));
+
 app.post('/', async (req, res) => {
   try {
     const request = z.array(z.string().regex(/^[A-Z0-9_\-]{11}$/i)).safeParse(req.body);

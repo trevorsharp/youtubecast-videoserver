@@ -12,13 +12,15 @@ app.use(express.json());
 app.use(CONTENT_DIRECTORY, express.static(`${CONTENT_DIRECTORY}/`));
 
 let isTemporarilyDisabled = false;
+let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
 
 app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
 
 app.post('/disable', async (_, res) => {
   isTemporarilyDisabled = true;
-  setTimeout(() => (isTemporarilyDisabled = false), 5 * 60 * 1000);
-  res.status(200).send('YouTubeCast Video Server is temporarily disabled');
+  if (temporarilyDisableTimeout) clearTimeout(temporarilyDisableTimeout);
+  temporarilyDisableTimeout = setTimeout(() => (isTemporarilyDisabled = false), 5 * 60 * 1000);
+  res.status(200).send('Video server is temporarily disabled');
 });
 
 app.post('/', async (req, res) => {

@@ -24,7 +24,7 @@
   <body>
     <div id="container">
       <h2>YouTubeCast Video Server</h2>
-      <button id="disableButton">Temporarily Disable</button>
+      <button id="disableButton">Temporarily Disable Streaming</button>
       <p id="responseContainer"></p>
     </div>
     <script>
@@ -34,7 +34,7 @@
         fetch('/disable', { method: 'POST' })
           .then((response) => response.text())
           .then((responseText) => (responseContainer.innerText = responseText))
-          .catch(() => (responseContainer.innerText = 'Failed to diable video server'));
+          .catch(() => (responseContainer.innerText = 'Failed to diable streaming'));
     </script>
   </body>
 </html>

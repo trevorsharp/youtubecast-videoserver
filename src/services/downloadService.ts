@@ -4,12 +4,6 @@ import { spawn } from 'child_process';
 import { CONTENT_DIRECTORY } from '..';
 import { addVideoToKeep } from './cleanupService';
 
-const ENABLE_DYNAMIC_QUALITY = z
-  .string()
-  .regex(/^(0|1|true|false)$/i)
-  .transform((x) => x.toLowerCase() === '1' || x.toLowerCase() === 'true')
-  .parse(process.env.ENABLE_DYNAMIC_QUALITY ?? 'false');
-
 const VIDEO_QUALITY = z
   .string()
   .regex(/^(2160|1440|1080|720|480|360).*$/)
@@ -43,7 +37,6 @@ const downloadVideo = (videoId: string): void => {
     CONTENT_DIRECTORY,
     videoId,
     `${VIDEO_QUALITY}`,
-    ENABLE_DYNAMIC_QUALITY && VIDEO_QUALITY > 720 ? 'true' : 'false',
   ]);
 
   videoDownloadProcess.stdout.on('data', (data) => console.log(`${data}`));
@@ -75,4 +68,4 @@ const addVideosToQueue = (videoList: string[]): void => {
   console.log(`Processed Video List: ${videoList.find(() => true)}`);
 };
 
-export { addVideosToQueue, ENABLE_DYNAMIC_QUALITY };
+export { addVideosToQueue };

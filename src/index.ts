@@ -1,7 +1,7 @@
 import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
-import { addVideosToQueue, ENABLE_DYNAMIC_QUALITY } from './services/downloadService';
+import { addVideosToQueue } from './services/downloadService';
 import { cleanupTempFiles } from './services/cleanupService';
 
 const PORT = 80;
@@ -11,16 +11,16 @@ const app = express();
 app.use(express.json());
 app.use(CONTENT_DIRECTORY, express.static(`${CONTENT_DIRECTORY}/`));
 
-let isTemporarilyDisabled = false;
-let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
+let isStreamingDisabled = false;
+let streamingDisabledTimeout: NodeJS.Timeout | undefined;
 
 app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
 
 app.post('/disable', async (_, res) => {
-  isTemporarilyDisabled = true;
-  if (temporarilyDisableTimeout) clearTimeout(temporarilyDisableTimeout);
-  temporarilyDisableTimeout = setTimeout(() => (isTemporarilyDisabled = false), 5 * 60 * 1000);
-  res.status(200).send('Video server is temporarily disabled');
+  isStreamingDisabled = true;
+  if (streamingDisabledTimeout) clearTimeout(streamingDisabledTimeout);
+  streamingDisabledTimeout = setTimeout(() => (isStreamingDisabled = false), 5 * 60 * 1000);
+  res.status(200).send('Streaming is temporarily disabled');
 });
 
 app.post('/', async (req, res) => {
@@ -41,14 +41,9 @@ app.get('/:videoId', (req, res) => {
   try {
     const videoId = req.params.videoId;
 
-    if (isTemporarilyDisabled) return res.status(404).send();
+    const fileExtension = isStreamingDisabled ? '.ts' : '.m3u8';
 
-    if (ENABLE_DYNAMIC_QUALITY) {
-      const dynamicVideoFilePath = `${CONTENT_DIRECTORY}/${videoId}.dynamic.m3u8`;
-      if (fs.existsSync(dynamicVideoFilePath)) return res.status(200).send(dynamicVideoFilePath);
-    }
-
-    const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
+    const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}${fileExtension}`;
 
     if (!fs.existsSync(videoFilePath)) return res.status(404).send();
 

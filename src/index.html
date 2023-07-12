@@ -42,9 +42,9 @@
         .then((response) => response.json())
         .then(
           (data) =>
-            (queueSize.innerText = `Download queue - ${
-              data.length > 0 ? data.length : 'No'
-            } videos`)
+            (queueSize.innerText = `Download queue - ${data.length > 0 ? data.length : 'No'} video${
+              data.length === 1 ? '' : 's'
+            }`)
         )
         .catch(() => (queueSize.innerText = 'Could not get download queue size'));
     </script>

@@ -24,10 +24,10 @@
   <body>
     <div id="container">
       <h2>YouTubeCast Video Server</h2>
-      <p id="currentDownload"></p>
-      <p id="queueSize"></p>
+      <span id="currentDownload"></span>
+      <span id="queueSize"></span>
       <button id="disableButton">Temporarily Disable Video Server</button>
-      <p id="responseContainer"></p>
+      <span id="responseContainer"></span>
     </div>
     <script>
       const disableButton = document.getElementById('disableButton');
@@ -54,7 +54,7 @@
         .then((response) => response.text())
         .then(
           (responseText) =>
-            (currentDownload.innerText = `Current download - ${responseText ?? 'None'}`)
+            (currentDownload.innerText = `Current download - ${responseText ? responseText : 'None'}`)
         )
         .catch(() => (queueSize.innerText = 'Could not get current download'));
     </script>

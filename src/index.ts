@@ -17,7 +17,8 @@ let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
 app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
 
 app.get('/currentDownload', async (_, res) => {
-  res.status(200).send(getCurrentDownload());
+  const currentDownload = await getCurrentDownload();
+  res.status(200).send(currentDownload);
 });
 
 app.get('/queue', async (_, res) => {

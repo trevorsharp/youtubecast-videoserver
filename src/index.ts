@@ -29,7 +29,7 @@ app.post('/disable', async (_, res) => {
   isTemporarilyDisabled = true;
   if (temporarilyDisableTimeout) clearTimeout(temporarilyDisableTimeout);
   temporarilyDisableTimeout = setTimeout(() => (isTemporarilyDisabled = false), 5 * 60 * 1000);
-  res.status(200).send('Video server is temporarily disabled for 5 minutes');
+  res.status(200).send(true);
 });
 
 app.post('/', async (req, res) => {

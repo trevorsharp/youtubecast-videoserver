@@ -35,31 +35,30 @@
       const responseContainer = document.getElementById('responseContainer');
       disableButton.onclick = () =>
         fetch('/disable', { method: 'POST' })
-          .then((response) => response.text())
-          .then((responseText) => (responseContainer.innerText = responseText))
-          .catch(() => (responseContainer.innerText = 'Failed to diable video server'));
+          .then(() => (responseContainer.innerText = 'Video Server Disabled For 5 Minutes'))
+          .catch(() => (responseContainer.innerText = 'Failed To Diable Video Server'));
 
       const queueSize = document.getElementById('queueSize');
       fetch('/queue')
         .then((response) => response.json())
         .then(
           (data) =>
-            (queueSize.innerText = `Download queue - ${data.length > 0 ? data.length : 'No'} video${
+            (queueSize.innerText = `Download Queue - ${data.length > 0 ? data.length : 'No'} Video${
               data.length === 1 ? '' : 's'
             }`)
         )
-        .catch(() => (queueSize.innerText = 'Could not get download queue size'));
+        .catch(() => (queueSize.innerText = 'Could Not Get Download Queue Size'));
 
       const currentDownload = document.getElementById('currentDownload');
       fetch('/currentDownload')
         .then((response) => response.text())
         .then(
           (responseText) =>
-            (currentDownload.innerText = `Current download - ${
+            (currentDownload.innerText = `Current Download - ${
               responseText ? responseText : 'None'
             }`)
         )
-        .catch(() => (queueSize.innerText = 'Could not get current download'));
+        .catch(() => (queueSize.innerText = 'Could Not Get Current Download'));
     </script>
   </body>
 </html>

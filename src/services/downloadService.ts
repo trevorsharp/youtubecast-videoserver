@@ -16,17 +16,19 @@ const VIDEOS_PER_FEED = z
 
 const downloadQueue: string[] = [];
 
+const getCurrentDownload = () =>
+  fs.promises
+    .readdir(CONTENT_DIRECTORY)
+    .then((files) => files.find((file) => file.endsWith('.temp'))?.replace('.temp', ''));
+
 setInterval(
   () =>
-    fs.readdir(CONTENT_DIRECTORY, (_, files) => {
-      if (downloadQueue.length > 0) {
-        if (files.filter((file) => file.endsWith('.temp')).length > 0) {
-          console.log('Queue Waiting For Download To Finish ...');
-          return;
-        }
-        downloadVideo(downloadQueue.shift()!);
-      }
-    }),
+    downloadQueue.length > 0 &&
+    getCurrentDownload().then((currentDownload) =>
+      currentDownload
+        ? console.log(`Queue (${downloadQueue.length} Videos) Waiting For Download To Finish ...`)
+        : downloadVideo(downloadQueue.shift()!)
+    ),
   60000
 );
 
@@ -70,4 +72,4 @@ const addVideosToQueue = (videoList: string[]): void => {
 
 const getQueue = () => downloadQueue;
 
-export { addVideosToQueue, getQueue };
+export { addVideosToQueue, getQueue, getCurrentDownload };

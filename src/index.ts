@@ -1,7 +1,7 @@
 import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
-import { addVideosToQueue, getQueue } from './services/downloadService';
+import { addVideosToQueue, getCurrentDownload, getQueue } from './services/downloadService';
 import { cleanupTempFiles } from './services/cleanupService';
 
 const PORT = 80;
@@ -15,6 +15,10 @@ let isTemporarilyDisabled = false;
 let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
 
 app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
+
+app.get('/currentDownload', async (_, res) => {
+  res.status(200).send(getCurrentDownload());
+});
 
 app.get('/queue', async (_, res) => {
   res.status(200).send(getQueue());

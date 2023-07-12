@@ -24,6 +24,7 @@
   <body>
     <div id="container">
       <h2>YouTubeCast Video Server</h2>
+      <p id="currentDownload"></p>
       <p id="queueSize"></p>
       <button id="disableButton">Temporarily Disable Video Server</button>
       <p id="responseContainer"></p>
@@ -47,6 +48,15 @@
             }`)
         )
         .catch(() => (queueSize.innerText = 'Could not get download queue size'));
+
+      const currentDownload = document.getElementById('currentDownload');
+      fetch('/currentDownload')
+        .then((response) => response.text())
+        .then(
+          (responseText) =>
+            (currentDownload.innerText = `Current download - ${responseText ?? 'None'}`)
+        )
+        .catch(() => (queueSize.innerText = 'Could not get current download'));
     </script>
   </body>
 </html>

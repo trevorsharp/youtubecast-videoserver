@@ -24,8 +24,9 @@
   <body>
     <div id="container">
       <h2>YouTubeCast Video Server</h2>
-      <span id="currentDownload"></span>
+      <span id="currentDownload">Loading Current Download...</span>
       <span id="queueSize"></span>
+      <br />
       <button id="disableButton">Temporarily Disable Video Server</button>
       <span id="responseContainer"></span>
     </div>
@@ -54,7 +55,9 @@
         .then((response) => response.text())
         .then(
           (responseText) =>
-            (currentDownload.innerText = `Current download - ${responseText ? responseText : 'None'}`)
+            (currentDownload.innerText = `Current download - ${
+              responseText ? responseText : 'None'
+            }`)
         )
         .catch(() => (queueSize.innerText = 'Could not get current download'));
     </script>

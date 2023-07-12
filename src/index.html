@@ -24,6 +24,7 @@
   <body>
     <div id="container">
       <h2>YouTubeCast Video Server</h2>
+      <p id="queueSize"></p>
       <button id="disableButton">Temporarily Disable</button>
       <p id="responseContainer"></p>
     </div>
@@ -35,6 +36,12 @@
           .then((response) => response.text())
           .then((responseText) => (responseContainer.innerText = responseText))
           .catch(() => (responseContainer.innerText = 'Failed to diable video server'));
+
+      const queueSize = document.getElementById('queueSize');
+      fetch('/queue')
+        .then((response) => response.json())
+        .then((data) => (queueSize.innerText = `Download queue contains ${data.length} videos`))
+        .catch(() => (queueSize.innerText = 'Could not get download queue size'));
     </script>
   </body>
 </html>

@@ -68,4 +68,6 @@ const addVideosToQueue = (videoList: string[]): void => {
   console.log(`Processed Video List: ${videoList.find(() => true)}`);
 };
 
-export { addVideosToQueue };
+const getQueue = () => downloadQueue;
+
+export { addVideosToQueue, getQueue };

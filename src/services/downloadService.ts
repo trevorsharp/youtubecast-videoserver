@@ -34,10 +34,27 @@ const getCurrentTranscode = () =>
 const getWaitingForDownloadCount = () => downloadQueue.length;
 const getWaitingForTranscodeCount = () => transcodeQueue.length;
 
-setInterval(() => {
-  if (downloadQueue.length > 0 && !getCurrentDownload()) downloadVideo(downloadQueue.shift()!);
-  if (transcodeQueue.length > 0 && !getCurrentTranscode()) transcodeVideo(transcodeQueue.shift()!);
-}, 60000);
+setInterval(async () => {
+  if (downloadQueue.length > 0) {
+    if (await getCurrentDownload()) {
+      console.log(
+        `Waiting For Download To Finish (Download queue contains ${downloadQueue.length} videos)`
+      );
+    } else {
+      downloadVideo(downloadQueue.shift()!);
+    }
+  }
+
+  if (transcodeQueue.length > 0) {
+    if (await getCurrentTranscode()) {
+      console.log(
+        `Waiting For Transcode To Finish (Transcode queue contains ${transcodeQueue.length} videos)`
+      );
+    } else {
+      transcodeVideo(transcodeQueue.shift()!);
+    }
+  }
+}, 30000);
 
 const downloadVideo = (videoId: string): void => {
   console.log(`Starting Download: ${videoId}`);
@@ -54,7 +71,7 @@ const downloadVideo = (videoId: string): void => {
   videoDownloadProcess.on('error', (error) => console.log(`Download Error: ${error.message}`));
   videoDownloadProcess.on('close', () => {
     console.log(
-      `Finished Download: ${videoId} (Downlaod queue contains ${downloadQueue.length} videos)`
+      `Finished Download: ${videoId} (Download queue contains ${downloadQueue.length} videos)`
     );
     transcodeQueue.push(videoId);
   });

@@ -1,6 +1,5 @@
 import fs from 'fs';
 import { z } from 'zod';
-import { spawn } from 'child_process';
 import { CONTENT_DIRECTORY } from '..';
 import { addVideoToKeep } from './cleanupService';
 
@@ -41,7 +40,7 @@ setInterval(async () => {
         `Waiting For Download To Finish (Download queue contains ${downloadQueue.length} videos)`
       );
     } else {
-      downloadVideo(downloadQueue.shift()!);
+      await downloadVideo(downloadQueue.shift()!);
     }
   }
 
@@ -56,44 +55,14 @@ setInterval(async () => {
   }
 }, 30000);
 
-const downloadVideo = (videoId: string): void => {
+const downloadVideo = async (videoId: string) => {
   console.log(`Starting Download: ${videoId}`);
-
-  const videoDownloadProcess = spawn('sh', [
-    './downloadVideo.sh',
-    CONTENT_DIRECTORY,
-    videoId,
-    `${VIDEO_QUALITY}`,
-  ]);
-
-  videoDownloadProcess.stdout.on('data', (data) => console.log(`${data}`));
-  videoDownloadProcess.stderr.on('data', (error) => console.log(`${error}`));
-  videoDownloadProcess.on('error', (error) => console.log(`Download Error: ${error.message}`));
-  videoDownloadProcess.on('close', () => {
-    console.log(
-      `Finished Download: ${videoId} (Download queue contains ${downloadQueue.length} videos)`
-    );
-    transcodeQueue.push(videoId);
-  });
+  await fs.promises.writeFile(`${CONTENT_DIRECTORY}/${videoId}.download`, '');
 };
 
 const transcodeVideo = async (videoId: string) => {
   console.log(`Starting Transcode: ${videoId}`);
-
   await fs.promises.writeFile(`${CONTENT_DIRECTORY}/${videoId}.transcode`, '');
-
-  if (!EXTERNAL_TRANSCODER) {
-    const videoDownloadProcess = spawn('sh', ['./transcodeVideos.sh', CONTENT_DIRECTORY]);
-
-    videoDownloadProcess.stdout.on('data', (data) => console.log(`${data}`));
-    videoDownloadProcess.stderr.on('data', (error) => console.log(`${error}`));
-    videoDownloadProcess.on('error', (error) => console.log(`Transcode Error: ${error.message}`));
-    videoDownloadProcess.on('close', () =>
-      console.log(
-        `Finished Transcode: ${videoId} (Transcode queue contains ${transcodeQueue.length} videos)`
-      )
-    );
-  }
 };
 
 const addVideosToQueue = async (videoList: string[]) => {

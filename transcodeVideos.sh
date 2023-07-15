@@ -1,6 +1,8 @@
 #!/bin/bash
 
-videoDirectory=$1
+videoDirectory="/content"
+
+mkdir -p "$videoDirectory"
 
 for file in "$videoDirectory"/*.transcode; do
     if [[ -f "$file" ]]; then

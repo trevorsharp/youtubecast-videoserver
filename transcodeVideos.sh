@@ -6,6 +6,12 @@ contentDirectory="/content"
 mkdir -p "$downloadDirectory"
 mkdir -p "$contentDirectory"
 
+for file in "$downloadDirectory"/*.transcode; do
+    if [[ -f "$file" ]]; then
+        exit 0
+    fi
+done
+
 for file in "$downloadDirectory"/*.transcode.queue; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)

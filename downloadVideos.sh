@@ -5,6 +5,12 @@ maxHeight=$VIDEO_QUALITY
 
 mkdir -p "$downloadDirectory"
 
+for file in "$downloadDirectory"/*.download; do
+    if [[ -f "$file" ]]; then
+        exit 0
+    fi
+done
+
 for file in "$downloadDirectory"/*.download.queue; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)

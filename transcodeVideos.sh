@@ -44,8 +44,8 @@ for file in "$downloadDirectory"/*.transcode; do
                 "$downloadDirectory/$videoId.m3u8"
         fi
 
-        mv "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
         mv "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"
+        mv "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
 
         rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio" "$downloadDirectory/$videoId.transcode"
     fi

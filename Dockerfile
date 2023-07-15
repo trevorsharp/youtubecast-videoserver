@@ -28,6 +28,5 @@ EXPOSE 80
 
 CMD /usr/bin/yt-dlp -U && \
   /usr/bin/yt-dlp --version && \
-  touch /var/log/download.log && \
   crond && \
   yarn start

@@ -29,22 +29,22 @@ app.get('/status', async (_, res) => {
   const waitingForTranscodeCount = getWaitingForTranscodeCount();
 
   const status =
-    `Current Download - ${currentDownload ?? 'None'}\n` +
-    `Current Transcode - ${currentTranscode ?? 'None'}\n` +
-    `Watiting For Download - ${
+    `Current Download:  ${currentDownload ?? 'None'}\n` +
+    `${
       waitingForDownloadCount === 0
         ? 'No Videos'
         : waitingForDownloadCount === 1
         ? '1 Video'
         : `${waitingForDownloadCount} Videos`
-    }\n` +
-    `Watiting For Transcode - ${
+    } Watiting For Download\n\n` +
+    `Current Transcode:  ${currentTranscode ?? 'None'}\n` +
+    `${
       waitingForTranscodeCount === 0
         ? 'No Videos'
         : waitingForTranscodeCount === 1
         ? '1 Video'
         : `${waitingForTranscodeCount} Videos`
-    }`;
+    } Watiting For Transcode`;
 
   res.status(200).send(status);
 });

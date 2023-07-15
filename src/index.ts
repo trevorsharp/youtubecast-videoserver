@@ -1,13 +1,7 @@
 import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
-import {
-  addVideosToQueue,
-  getCurrentDownload,
-  getCurrentTranscode,
-  getWaitingForDownloadCount,
-  getWaitingForTranscodeCount,
-} from './services/downloadService';
+import { addVideosToQueue, getStatus } from './services/downloadService';
 
 const PORT = 80;
 const CONTENT_DIRECTORY = '/content';
@@ -19,31 +13,20 @@ app.use(CONTENT_DIRECTORY, express.static(`${CONTENT_DIRECTORY}/`));
 let isTemporarilyDisabled = false;
 let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
 
+const formatVideoCount = (count: number) =>
+  count === 0 ? 'No Videos' : count === 1 ? '1 Video' : `${count} Videos`;
+
 app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
 
 app.get('/status', async (_, res) => {
-  const currentDownload = getCurrentDownload();
-  const currentTranscode = getCurrentTranscode();
-  const waitingForDownloadCount = getWaitingForDownloadCount();
-  const waitingForTranscodeCount = getWaitingForTranscodeCount();
+  const { currentDownload, currentTranscode, waitingForDownloadCount, waitingForTranscodeCount } =
+    await getStatus();
 
   const status =
     `Current Download:  ${currentDownload ?? 'None'}\n` +
-    `${
-      waitingForDownloadCount === 0
-        ? 'No Videos'
-        : waitingForDownloadCount === 1
-        ? '1 Video'
-        : `${waitingForDownloadCount} Videos`
-    } Waiting For Download\n\n` +
+    `${formatVideoCount(waitingForDownloadCount)} Waiting For Download\n\n` +
     `Current Transcode:  ${currentTranscode ?? 'None'}\n` +
-    `${
-      waitingForTranscodeCount === 0
-        ? 'No Videos'
-        : waitingForTranscodeCount === 1
-        ? '1 Video'
-        : `${waitingForTranscodeCount} Videos`
-    } Waiting For Transcode`;
+    `${formatVideoCount(waitingForTranscodeCount)} Waiting For Transcode`;
 
   res.status(200).send(status);
 });

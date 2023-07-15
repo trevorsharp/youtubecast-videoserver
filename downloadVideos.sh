@@ -5,9 +5,13 @@ maxHeight=$VIDEO_QUALITY
 
 mkdir -p "$downloadDirectory"
 
-for file in "$downloadDirectory"/*.download; do
+for file in "$downloadDirectory"/*.download.queue; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)
+
+        mv $file "$downloadDirectory/$videoId.download"
+
+        echo "Starting to download $videoId"
 
         if [ -e cookies.txt ]
         then
@@ -36,6 +40,8 @@ for file in "$downloadDirectory"/*.download; do
                 "https://youtube.com/watch?v=$videoId"
         fi
 
-        rm "$downloadDirectory/$videoId.download"
+        mv "$downloadDirectory/$videoId.download" "$downloadDirectory/$videoId.transcode.queue"
+
+        echo "Finished downloading $videoId"
     fi
 done

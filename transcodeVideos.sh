@@ -1,16 +1,16 @@
 #!/bin/bash
 
-echo "Starting Transcode Job"
-
 downloadDirectory="/download"
 contentDirectory="/content"
 
 mkdir -p "$downloadDirectory"
 mkdir -p "$contentDirectory"
 
-for file in "$downloadDirectory"/*.transcode; do
+for file in "$downloadDirectory"/*.transcode.queue; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)
+
+        mv $file "$downloadDirectory/$videoId.transcode"
 
         echo "Starting to transcode $videoId"
         
@@ -24,7 +24,6 @@ for file in "$downloadDirectory"/*.transcode; do
 
         if [ "$videoCodec" = "h264" ]; then
             ffmpeg \
-                -loglevel debug \
                 -hide_banner \
                 -i "$downloadDirectory/$videoId.video" \
                 -i "$downloadDirectory/$videoId.audio" \
@@ -33,7 +32,7 @@ for file in "$downloadDirectory"/*.transcode; do
                 -f hls \
                 -hls_playlist_type vod \
                 -hls_flags single_file \
-                "$downloadDirectory/$videoId.m3u8"
+                "$downloadDirectory/$videoId.m3u8" >> /var/log/transcode.log
         else
             ffmpeg \
                 -loglevel debug \
@@ -47,12 +46,15 @@ for file in "$downloadDirectory"/*.transcode; do
                 -f hls \
                 -hls_playlist_type vod \
                 -hls_flags single_file \
-                "$downloadDirectory/$videoId.m3u8"
+                "$downloadDirectory/$videoId.m3u8" >> /var/log/transcode.log
         fi
 
         mv "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"
         mv "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
 
-        rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio" "$downloadDirectory/$videoId.transcode"
+        rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio"
+        rm "$downloadDirectory/$videoId.transcode"
+
+        echo "Finished transcoding $videoId"
     fi
 done

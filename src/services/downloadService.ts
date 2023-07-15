@@ -14,67 +14,36 @@ const VIDEOS_PER_FEED = z
   .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
   .parse(process.env.VIDEOS_PER_FEED);
 
-let currentDownload: string | undefined;
-let currentTranscode: string | undefined;
-const downloadQueue: string[] = [];
-const transcodeQueue: string[] = [];
+const getStatus = async () => {
+  const files = await fs.promises.readdir(DOWNLOAD_DIRECTORY);
 
-const getCurrentDownload = () => currentDownload;
-const getCurrentTranscode = () => currentTranscode;
-const getWaitingForDownloadCount = () => downloadQueue.length;
-const getWaitingForTranscodeCount = () => transcodeQueue.length;
-
-setInterval(async () => {
-  if (currentDownload) {
-    const isDownloading = !!(await fs.promises
-      .stat(`${DOWNLOAD_DIRECTORY}/${currentDownload}.download`)
-      .catch(() => false));
-
-    if (!isDownloading) {
-      transcodeQueue.push(currentDownload);
-      currentDownload = undefined;
-    }
-  }
-
-  if (downloadQueue.length > 0 && !currentDownload) {
-    currentDownload = downloadQueue.shift();
-    await fs.promises.writeFile(`${DOWNLOAD_DIRECTORY}/${currentDownload}.download`, '');
-    console.log(`Downloading Video: ${currentDownload}`);
-  }
-
-  if (currentTranscode) {
-    const isTranscoding = !!(await fs.promises
-      .stat(`${DOWNLOAD_DIRECTORY}/${currentTranscode}.transcode`)
-      .catch(() => false));
-
-    if (!isTranscoding) currentTranscode = undefined;
-  }
-
-  if (transcodeQueue.length > 0 && !currentTranscode) {
-    currentTranscode = transcodeQueue.shift();
-    await fs.promises.writeFile(`${DOWNLOAD_DIRECTORY}/${currentTranscode}.transcode`, '');
-    console.log(`Transcoding Video: ${currentTranscode}`);
-  }
-}, 30000);
+  return {
+    currentDownload: files.find((file) => file.endsWith('.download'))?.replace('.download', ''),
+    currentTranscode: files.find((file) => file.endsWith('.transcode'))?.replace('.transcode', ''),
+    waitingForDownloadCount: files.filter((file) => file.endsWith('.download.queue'))?.length ?? 0,
+    waitingForTranscodeCount:
+      files.filter((file) => file.endsWith('.transcode.queue'))?.length ?? 0,
+  };
+};
 
 const addVideosToQueue = async (videoList: string[]) => {
   console.log(`Received Updated Video List: ${videoList.find(() => true)}`);
 
   const videosToDownload = videoList.slice(0, Math.min(videoList.length, VIDEOS_PER_FEED));
 
+  const files = await fs.promises.readdir(DOWNLOAD_DIRECTORY);
+
   await Promise.all(
     videosToDownload.map(async (videoId) => {
       addVideoToKeep(videoId);
 
       const videoIsAlreadyAdded =
-        downloadQueue.includes(videoId) ||
-        transcodeQueue.includes(videoId) ||
-        currentDownload === videoId ||
-        currentTranscode === videoId ||
+        !!files.find((file) => file.includes(`${videoId}.download`)) ||
+        !!files.find((file) => file.includes(`${videoId}.transcode`)) ||
         !!(await fs.promises.stat(`${CONTENT_DIRECTORY}/${videoId}.m3u8`).catch(() => false));
 
       if (!videoIsAlreadyAdded) {
-        downloadQueue.push(videoId);
+        await fs.promises.writeFile(`${videoId}.download.queue`, '');
         console.log(`Added Video To Download Queue: ${videoId}`);
       }
     })
@@ -83,10 +52,4 @@ const addVideosToQueue = async (videoList: string[]) => {
   console.log(`Processed Video List: ${videoList.find(() => true)}`);
 };
 
-export {
-  addVideosToQueue,
-  getCurrentDownload,
-  getCurrentTranscode,
-  getWaitingForDownloadCount,
-  getWaitingForTranscodeCount,
-};
+export { addVideosToQueue, getStatus };

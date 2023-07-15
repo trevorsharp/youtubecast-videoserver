@@ -1,6 +1,6 @@
 FROM node:lts-alpine
 
-RUN apk add --no-cache yarn ffmpeg python3 py3-pip bash
+RUN apk add --no-cache yarn ffmpeg python3 py3-pip bash rsync
 RUN set -x && \
   wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
   chmod a+x /usr/bin/yt-dlp

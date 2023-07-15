@@ -54,8 +54,8 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 "$downloadDirectory/$videoId.m3u8"
         fi
 
-        mv "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"
-        mv "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
+        rsync -avh "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"
+        rsync -avh "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
 
         rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio"
         rm "$downloadDirectory/$videoId.transcode"

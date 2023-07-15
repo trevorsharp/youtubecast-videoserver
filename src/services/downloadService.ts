@@ -15,7 +15,7 @@ const VIDEOS_PER_FEED = z
   .parse(process.env.VIDEOS_PER_FEED);
 
 const EXTERNAL_TRANSCODER = z
-  .preprocess((x) => x === 'true' || x === '1' || x, z.boolean())
+  .preprocess((x) => x === 'true' || x === '1', z.boolean().optional())
   .parse(process.env.EXTERNAL_TRANSCODER);
 
 const downloadQueue: string[] = [];

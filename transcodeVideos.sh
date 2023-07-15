@@ -32,7 +32,7 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 -f hls \
                 -hls_playlist_type vod \
                 -hls_flags single_file \
-                "$downloadDirectory/$videoId.m3u8" >> /var/log/transcode.log
+                "$downloadDirectory/$videoId.m3u8"
         else
             ffmpeg \
                 -loglevel debug \
@@ -46,7 +46,7 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 -f hls \
                 -hls_playlist_type vod \
                 -hls_flags single_file \
-                "$downloadDirectory/$videoId.m3u8" >> /var/log/transcode.log
+                "$downloadDirectory/$videoId.m3u8"
         fi
 
         mv "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"

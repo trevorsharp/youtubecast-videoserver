@@ -14,6 +14,10 @@ const VIDEOS_PER_FEED = z
   .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
   .parse(process.env.VIDEOS_PER_FEED);
 
+const EXTERNAL_TRANSCODER = z
+  .preprocess((x) => x === 'true' || x === '1' || x, z.boolean())
+  .parse(process.env.EXTERNAL_TRANSCODER);
+
 const downloadQueue: string[] = [];
 
 const getCurrentDownload = () =>
@@ -34,11 +38,13 @@ setInterval(
 
 const downloadVideo = (videoId: string): void => {
   console.log(`Starting Download: ${videoId}`);
+
   const videoDownloadProcess = spawn('sh', [
     './downloadVideos.sh',
     CONTENT_DIRECTORY,
     videoId,
     `${VIDEO_QUALITY}`,
+    `${EXTERNAL_TRANSCODER}`,
   ]);
 
   videoDownloadProcess.stdout.on('data', (data) => console.log(`${data}`));

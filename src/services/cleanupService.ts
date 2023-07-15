@@ -13,7 +13,7 @@ setTimeout(async () => {
   // If not updated in the last 4 hours, skip cleanup
   if (new Date().getTime() - lastUpdatedOn.getTime() > 14400000) return;
 
-  console.log('Cleaning up any old video files');
+  console.log('Cleaning Up Video Files');
 
   const files = await fs.promises.readdir(CONTENT_DIRECTORY);
 

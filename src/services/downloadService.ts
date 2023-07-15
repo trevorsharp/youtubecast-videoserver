@@ -27,7 +27,7 @@ const getStatus = async () => {
 };
 
 const addVideosToQueue = async (videoList: string[]) => {
-  console.log(`Received Updated Video List: ${videoList.find(() => true)}`);
+  console.log(`Received Video List (${videoList.find(() => true)})`);
 
   const videosToDownload = videoList.slice(0, Math.min(videoList.length, VIDEOS_PER_FEED));
 
@@ -49,7 +49,7 @@ const addVideosToQueue = async (videoList: string[]) => {
     })
   );
 
-  console.log(`Processed Video List: ${videoList.find(() => true)}`);
+  console.log(`Finished Video List (${videoList.find(() => true)})`);
 };
 
 const reQueueUnfinishedVideos = async () => {

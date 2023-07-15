@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Starting Transcode Job"
+
 downloadDirectory="/download"
 contentDirectory="/content"
 
@@ -9,6 +11,8 @@ mkdir -p "$contentDirectory"
 for file in "$downloadDirectory"/*.transcode; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)
+
+        echo "Starting to transcode $videoId"
         
         videoCodec=$(ffprobe \
             -v error \
@@ -20,6 +24,7 @@ for file in "$downloadDirectory"/*.transcode; do
 
         if [ "$videoCodec" = "h264" ]; then
             ffmpeg \
+                -loglevel debug \
                 -hide_banner \
                 -i "$downloadDirectory/$videoId.video" \
                 -i "$downloadDirectory/$videoId.audio" \
@@ -31,6 +36,7 @@ for file in "$downloadDirectory"/*.transcode; do
                 "$downloadDirectory/$videoId.m3u8"
         else
             ffmpeg \
+                -loglevel debug \
                 -hide_banner \
                 -i "$downloadDirectory/$videoId.video" \
                 -i "$downloadDirectory/$videoId.audio" \

@@ -43,7 +43,7 @@ const addVideosToQueue = async (videoList: string[]) => {
         !!(await fs.promises.stat(`${CONTENT_DIRECTORY}/${videoId}.m3u8`).catch(() => false));
 
       if (!videoIsAlreadyAdded) {
-        await fs.promises.writeFile(`${videoId}.download.queue`, '');
+        await fs.promises.writeFile(`${DOWNLOAD_DIRECTORY}/${videoId}.download.queue`, '');
         console.log(`Added Video To Download Queue: ${videoId}`);
       }
     })

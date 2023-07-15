@@ -41,7 +41,6 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 "$downloadDirectory/$videoId.m3u8"
         else
             ffmpeg \
-                -loglevel debug \
                 -hide_banner \
                 -i "$downloadDirectory/$videoId.video" \
                 -i "$downloadDirectory/$videoId.audio" \

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
-import { addVideosToQueue, getStatus } from './services/downloadService';
+import { addVideosToQueue, getStatus, reQueueUnfinishedVideos } from './services/downloadService';
 
 const PORT = 80;
 const CONTENT_DIRECTORY = '/content';
@@ -71,5 +71,6 @@ app.get('/:videoId', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+void reQueueUnfinishedVideos();
 
 export { CONTENT_DIRECTORY };

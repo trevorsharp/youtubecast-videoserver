@@ -52,4 +52,16 @@ const addVideosToQueue = async (videoList: string[]) => {
   console.log(`Processed Video List: ${videoList.find(() => true)}`);
 };
 
-export { addVideosToQueue, getStatus };
+const reQueueUnfinishedVideos = async () => {
+  const files = await fs.promises.readdir(DOWNLOAD_DIRECTORY);
+
+  await Promise.all(
+    files.map((file) =>
+      file.endsWith('.download') || file.endsWith('.transcode')
+        ? fs.promises.rename(`${DOWNLOAD_DIRECTORY}/${file}`, `${DOWNLOAD_DIRECTORY}/${file}.queue`)
+        : Promise.resolve()
+    )
+  );
+};
+
+export { addVideosToQueue, getStatus, reQueueUnfinishedVideos };

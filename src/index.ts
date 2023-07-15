@@ -36,7 +36,7 @@ app.get('/status', async (_, res) => {
         : waitingForDownloadCount === 1
         ? '1 Video'
         : `${waitingForDownloadCount} Videos`
-    } Watiting For Download\n\n` +
+    } Waiting For Download\n\n` +
     `Current Transcode:  ${currentTranscode ?? 'None'}\n` +
     `${
       waitingForTranscodeCount === 0
@@ -44,7 +44,7 @@ app.get('/status', async (_, res) => {
         : waitingForTranscodeCount === 1
         ? '1 Video'
         : `${waitingForTranscodeCount} Videos`
-    } Watiting For Transcode`;
+    } Waiting For Transcode`;
 
   res.status(200).send(status);
 });

@@ -24,41 +24,27 @@
   <body>
     <div id="container">
       <h2>YouTubeCast Video Server</h2>
-      <span id="currentDownload">Loading Current Download...</span>
-      <span id="queueSize"></span>
+      <span id="status">Loading Current Status...</span>
       <br />
       <button id="disableButton">Temporarily Disable Video Server</button>
-      <span id="responseContainer"></span>
+      <span id="disableResponseContainer"></span>
     </div>
     <script>
       const disableButton = document.getElementById('disableButton');
-      const responseContainer = document.getElementById('responseContainer');
+      const disableResponseContainer = document.getElementById('disableResponseContainer');
       disableButton.onclick = () =>
         fetch('/disable', { method: 'POST' })
-          .then(() => (responseContainer.innerText = 'Video Server Disabled For 5 Minutes'))
-          .catch(() => (responseContainer.innerText = 'Failed To Diable Video Server'));
+          .then(() => (disableResponseContainer.innerText = 'Video Server Disabled For 5 Minutes'))
+          .catch(() => (disableResponseContainer.innerText = 'Failed To Diable Video Server'));
 
-      const queueSize = document.getElementById('queueSize');
-      fetch('/queue')
-        .then((response) => response.json())
-        .then(
-          (data) =>
-            (queueSize.innerText = `Download Queue - ${data.length > 0 ? data.length : 'No'} Video${
-              data.length === 1 ? '' : 's'
-            }`)
-        )
-        .catch(() => (queueSize.innerText = 'Could Not Get Download Queue Size'));
-
-      const currentDownload = document.getElementById('currentDownload');
-      fetch('/currentDownload')
-        .then((response) => response.text())
-        .then(
-          (responseText) =>
-            (currentDownload.innerText = `Current Download - ${
-              responseText ? responseText : 'None'
-            }`)
-        )
-        .catch(() => (queueSize.innerText = 'Could Not Get Current Download'));
+      const status = document.getElementById('status');
+      fetch('/status')
+        .then((response) => {
+          if (response.status !== 200) throw 'Could Not Get Status';
+          return response.text();
+        })
+        .then((responseText) => (status.innerText = responseText))
+        .catch((errorMessage) => (status.innerText = errorMessage));
     </script>
   </body>
 </html>

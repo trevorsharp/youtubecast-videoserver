@@ -34,9 +34,11 @@ const addVideoToKeep = (videoId: string) => {
 
 const cleanupTempFiles = () =>
   fs.readdir(CONTENT_DIRECTORY, (_, files) => {
-    console.log('Removing any .temp files');
+    console.log('Removing any temp files');
     files
       .filter((file) => file.endsWith('.temp'))
+      .filter((file) => file.endsWith('.download'))
+      .filter((file) => file.endsWith('.transcode'))
       .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`));
   });
 

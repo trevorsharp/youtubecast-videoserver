@@ -19,40 +19,64 @@ const EXTERNAL_TRANSCODER = z
   .parse(process.env.EXTERNAL_TRANSCODER);
 
 const downloadQueue: string[] = [];
+const transcodeQueue: string[] = [];
 
 const getCurrentDownload = () =>
   fs.promises
     .readdir(CONTENT_DIRECTORY)
-    .then((files) => files.find((file) => file.endsWith('.temp'))?.replace('.temp', ''));
+    .then((files) => files.find((file) => file.endsWith('.download'))?.replace('.download', ''));
 
-setInterval(
-  () =>
-    downloadQueue.length > 0 &&
-    getCurrentDownload().then((currentDownload) =>
-      currentDownload
-        ? console.log(`Queue (${downloadQueue.length} Videos) Waiting For Download To Finish ...`)
-        : downloadVideo(downloadQueue.shift()!)
-    ),
-  60000
-);
+const getCurrentTranscode = () =>
+  fs.promises
+    .readdir(CONTENT_DIRECTORY)
+    .then((files) => files.find((file) => file.endsWith('.transcode'))?.replace('.transcode', ''));
+
+const getWaitingForDownloadCount = () => downloadQueue.length;
+const getWaitingForTranscodeCount = () => transcodeQueue.length;
+
+setInterval(() => {
+  if (downloadQueue.length > 0 && !getCurrentDownload()) downloadVideo(downloadQueue.shift()!);
+  if (transcodeQueue.length > 0 && !getCurrentTranscode()) transcodeVideo(transcodeQueue.shift()!);
+}, 60000);
 
 const downloadVideo = (videoId: string): void => {
   console.log(`Starting Download: ${videoId}`);
 
   const videoDownloadProcess = spawn('sh', [
-    './downloadVideos.sh',
+    './downloadVideo.sh',
     CONTENT_DIRECTORY,
     videoId,
     `${VIDEO_QUALITY}`,
-    `${EXTERNAL_TRANSCODER}`,
   ]);
 
   videoDownloadProcess.stdout.on('data', (data) => console.log(`${data}`));
   videoDownloadProcess.stderr.on('data', (error) => console.log(`${error}`));
   videoDownloadProcess.on('error', (error) => console.log(`Download Error: ${error.message}`));
-  videoDownloadProcess.on('close', () =>
-    console.log(`Finished Download: ${videoId} (Queue contains ${downloadQueue.length} videos)`)
-  );
+  videoDownloadProcess.on('close', () => {
+    console.log(
+      `Finished Download: ${videoId} (Downlaod queue contains ${downloadQueue.length} videos)`
+    );
+    transcodeQueue.push(videoId);
+  });
+};
+
+const transcodeVideo = (videoId: string): void => {
+  console.log(`Starting Transcode: ${videoId}`);
+
+  fs.writeFileSync(`${CONTENT_DIRECTORY}/${videoId}.transcode`, '');
+
+  if (!EXTERNAL_TRANSCODER) {
+    const videoDownloadProcess = spawn('sh', ['./transcodeVideos.sh', CONTENT_DIRECTORY]);
+
+    videoDownloadProcess.stdout.on('data', (data) => console.log(`${data}`));
+    videoDownloadProcess.stderr.on('data', (error) => console.log(`${error}`));
+    videoDownloadProcess.on('error', (error) => console.log(`Transcode Error: ${error.message}`));
+    videoDownloadProcess.on('close', () =>
+      console.log(
+        `Finished Transcode: ${videoId} (Transcode queue contains ${transcodeQueue.length} videos)`
+      )
+    );
+  }
 };
 
 const addVideosToQueue = (videoList: string[]): void => {
@@ -68,7 +92,7 @@ const addVideosToQueue = (videoList: string[]): void => {
     ) {
       downloadQueue.push(videoId);
       console.log(
-        `Added Video To Download Queue: ${videoId} (Queue contains ${downloadQueue.length} videos)`
+        `Added Video To Download Queue: ${videoId} (Download queue contains ${downloadQueue.length} videos)`
       );
     }
   });
@@ -76,6 +100,10 @@ const addVideosToQueue = (videoList: string[]): void => {
   console.log(`Processed Video List: ${videoList.find(() => true)}`);
 };
 
-const getQueue = () => downloadQueue;
-
-export { addVideosToQueue, getQueue, getCurrentDownload };
+export {
+  addVideosToQueue,
+  getCurrentDownload,
+  getCurrentTranscode,
+  getWaitingForDownloadCount,
+  getWaitingForTranscodeCount,
+};

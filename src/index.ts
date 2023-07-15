@@ -1,7 +1,13 @@
 import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
-import { addVideosToQueue, getCurrentDownload, getQueue } from './services/downloadService';
+import {
+  addVideosToQueue,
+  getCurrentDownload,
+  getCurrentTranscode,
+  getWaitingForDownloadCount,
+  getWaitingForTranscodeCount,
+} from './services/downloadService';
 import { cleanupTempFiles } from './services/cleanupService';
 
 const PORT = 80;
@@ -16,13 +22,34 @@ let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
 
 app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
 
-app.get('/currentDownload', async (_, res) => {
-  const currentDownload = await getCurrentDownload();
-  res.status(200).send(currentDownload);
-});
+app.get('/status', async (_, res) => {
+  const currentDownload = getCurrentDownload();
+  const currentTranscode = getCurrentTranscode();
 
-app.get('/queue', async (_, res) => {
-  res.status(200).send(getQueue());
+  await Promise.all([currentDownload, currentTranscode]);
+
+  const waitingForDownloadCount = getWaitingForDownloadCount();
+  const waitingForTranscodeCount = getWaitingForTranscodeCount();
+
+  const status =
+    `Current Download - ${currentDownload ?? 'None'}\n` +
+    `Current Transcode - ${currentTranscode ?? 'None'}\n` +
+    `Watiting For Download - ${
+      waitingForDownloadCount === 0
+        ? 'No Videos'
+        : waitingForDownloadCount === 1
+        ? '1 Video'
+        : `${waitingForDownloadCount} Videos`
+    }\n` +
+    `Watiting For Transcode - ${
+      waitingForTranscodeCount === 0
+        ? 'No Videos'
+        : waitingForTranscodeCount === 1
+        ? '1 Video'
+        : `${waitingForTranscodeCount} Videos`
+    }`;
+
+  res.status(200).send(status);
 });
 
 app.post('/disable', async (_, res) => {

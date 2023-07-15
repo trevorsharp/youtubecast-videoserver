@@ -2,17 +2,9 @@
 
 videoDirectory=$1
 
-if [[ -n $2 ]]; then
-    ffmpegEncoder=$2
-else
-    ffmpegEncoder="libx264"
-fi
-
-for file in "$videoDirectory/*.transcode"; do
+for file in "$videoDirectory"/*.transcode; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)
-
-        rm "$videoDirectory/$videoId.transcode"
         
         videoCodec=$(ffprobe \
             -v error \
@@ -38,15 +30,16 @@ for file in "$videoDirectory/*.transcode"; do
                 -hide_banner \
                 -i "$videoDirectory/$videoId.video" \
                 -i "$videoDirectory/$videoId.audio" \
-                -c:v $ffmpegEncoder \
-                -b:v 10000k \
+                -c:v libx264 \
                 -c:a copy \
+                -preset veryfast \
+                -r 30 \
                 -f hls \
                 -hls_playlist_type vod \
                 -hls_flags single_file \
                 "$videoDirectory/$videoId.m3u8"
         fi
 
-        rm "$videoDirectory/$videoId.video" "$videoDirectory/$videoId.audio" "$videoDirectory/$videoId.temp"
+        rm "$videoDirectory/$videoId.video" "$videoDirectory/$videoId.audio" "$videoDirectory/$videoId.transcode"
     fi
 done

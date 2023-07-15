@@ -1,1 +1,2 @@
-* * * * * /usr/bin/sh /app/downloadVideos.sh
+* * * * * /bin/bash /app/downloadVideos.sh >> /var/log/download.log
+* * * * * /bin/bash /app/transcodeVideos.sh >> /var/log/transcode.log

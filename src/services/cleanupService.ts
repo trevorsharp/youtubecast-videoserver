@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { CONTENT_DIRECTORY } from '..';
 
 const CLEANUP_INTERVAL = z
-  .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
+  .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1).max(14))
   .parse(process.env.CLEANUP_INTERVAL);
 
 const videosToKeep: Set<string> = new Set<string>();
@@ -34,18 +34,4 @@ const addVideoToKeep = (videoId: string) => {
   videosToKeep.add(videoId);
 };
 
-const cleanupTempFiles = async () => {
-  console.log('Removing any temp files');
-  const files = await fs.promises.readdir(CONTENT_DIRECTORY);
-
-  await Promise.all(
-    files
-      .filter(
-        (file) =>
-          file.endsWith('.temp') || file.endsWith('.download') || file.endsWith('.transcode')
-      )
-      .map((file) => fs.promises.unlink(`${CONTENT_DIRECTORY}/${file}`))
-  );
-};
-
-export { addVideoToKeep, cleanupTempFiles };
+export { addVideoToKeep };

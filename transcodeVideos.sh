@@ -1,10 +1,12 @@
 #!/bin/bash
 
-videoDirectory="/content"
+downloadDirectory="/download"
+contentDirectory="/content"
 
-mkdir -p "$videoDirectory"
+mkdir -p "$downloadDirectory"
+mkdir -p "$contentDirectory"
 
-for file in "$videoDirectory"/*.transcode; do
+for file in "$downloadDirectory"/*.transcode; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)
         
@@ -13,25 +15,25 @@ for file in "$videoDirectory"/*.transcode; do
             -select_streams v:0 \
             -show_entries stream=codec_name \
             -of default=noprint_wrappers=1:nokey=1 \
-            "$videoDirectory/$videoId.video" \
+            "$downloadDirectory/$videoId.video" \
             | head -n 1)
 
         if [ "$videoCodec" = "h264" ]; then
             ffmpeg \
                 -hide_banner \
-                -i "$videoDirectory/$videoId.video" \
-                -i "$videoDirectory/$videoId.audio" \
+                -i "$downloadDirectory/$videoId.video" \
+                -i "$downloadDirectory/$videoId.audio" \
                 -c:v copy \
                 -c:a copy \
                 -f hls \
                 -hls_playlist_type vod \
                 -hls_flags single_file \
-                "$videoDirectory/$videoId.m3u8"
+                "$downloadDirectory/$videoId.m3u8"
         else
             ffmpeg \
                 -hide_banner \
-                -i "$videoDirectory/$videoId.video" \
-                -i "$videoDirectory/$videoId.audio" \
+                -i "$downloadDirectory/$videoId.video" \
+                -i "$downloadDirectory/$videoId.audio" \
                 -c:v libx264 \
                 -c:a copy \
                 -preset veryfast \
@@ -39,9 +41,12 @@ for file in "$videoDirectory"/*.transcode; do
                 -f hls \
                 -hls_playlist_type vod \
                 -hls_flags single_file \
-                "$videoDirectory/$videoId.m3u8"
+                "$downloadDirectory/$videoId.m3u8"
         fi
 
-        rm "$videoDirectory/$videoId.video" "$videoDirectory/$videoId.audio" "$videoDirectory/$videoId.transcode"
+        mv "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
+        mv "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"
+
+        rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio" "$downloadDirectory/$videoId.transcode"
     fi
 done

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-videoDirectory="/content"
+downloadDirectory="/download"
 maxHeight=$VIDEO_QUALITY
 
-mkdir -p "$videoDirectory"
+mkdir -p "$downloadDirectory"
 
-for file in "$videoDirectory"/*.download; do
+for file in "$downloadDirectory"/*.download; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)
 
@@ -14,28 +14,28 @@ for file in "$videoDirectory"/*.download; do
             yt-dlp \
                 -f "bv[height<=${maxHeight}]" \
                 -S "height,ext" \
-                -o "$videoDirectory/%(id)s.video" \
+                -o "$downloadDirectory/%(id)s.video" \
                 --cookies cookies.txt \
                 "https://youtube.com/watch?v=$videoId"
 
             yt-dlp \
                 -f "ba[ext=m4a]" \
-                -o "$videoDirectory/%(id)s.audio" \
+                -o "$downloadDirectory/%(id)s.audio" \
                 --cookies cookies.txt \
                 "https://youtube.com/watch?v=$videoId"
         else
             yt-dlp \
                 -f "bv[height<=${maxHeight}]" \
                 -S "height,ext" \
-                -o "$videoDirectory/%(id)s.video" \
+                -o "$downloadDirectory/%(id)s.video" \
                 "https://youtube.com/watch?v=$videoId"
 
             yt-dlp \
                 -f "ba[ext=m4a]" \
-                -o "$videoDirectory/%(id)s.audio" \
+                -o "$downloadDirectory/%(id)s.audio" \
                 "https://youtube.com/watch?v=$videoId"
         fi
 
-        rm "$videoDirectory/$videoId.download"
+        rm "$downloadDirectory/$videoId.download"
     fi
 done

@@ -8,7 +8,6 @@ import {
   getWaitingForDownloadCount,
   getWaitingForTranscodeCount,
 } from './services/downloadService';
-import { cleanupTempFiles } from './services/cleanupService';
 
 const PORT = 80;
 const CONTENT_DIRECTORY = '/content';
@@ -23,8 +22,8 @@ let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
 app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
 
 app.get('/status', async (_, res) => {
-  const currentDownload = await getCurrentDownload();
-  const currentTranscode = await getCurrentTranscode();
+  const currentDownload = getCurrentDownload();
+  const currentTranscode = getCurrentTranscode();
   const waitingForDownloadCount = getWaitingForDownloadCount();
   const waitingForTranscodeCount = getWaitingForTranscodeCount();
 
@@ -51,15 +50,17 @@ app.get('/status', async (_, res) => {
 
 app.post('/disable', async (_, res) => {
   isTemporarilyDisabled = true;
+
   if (temporarilyDisableTimeout) clearTimeout(temporarilyDisableTimeout);
+
   temporarilyDisableTimeout = setTimeout(() => (isTemporarilyDisabled = false), 5 * 60 * 1000);
+
   res.status(200).send(true);
 });
 
 app.post('/', async (req, res) => {
   try {
     const request = z.array(z.string().regex(/^[A-Z0-9_\-]{11}$/i)).safeParse(req.body);
-
     if (!request.success) return res.status(400).send();
 
     await addVideosToQueue(request.data);
@@ -73,12 +74,10 @@ app.post('/', async (req, res) => {
 app.get('/:videoId', async (req, res) => {
   try {
     const videoId = req.params.videoId;
-
-    if (isTemporarilyDisabled) return res.status(404).send();
-
     const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
 
-    const videoExists = !!(await fs.promises.stat(videoFilePath).catch(() => false));
+    const videoExists =
+      isTemporarilyDisabled || !!(await fs.promises.stat(videoFilePath).catch(() => false));
 
     if (!videoExists) return res.status(404).send();
 
@@ -89,6 +88,5 @@ app.get('/:videoId', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-void cleanupTempFiles();
 
 export { CONTENT_DIRECTORY };

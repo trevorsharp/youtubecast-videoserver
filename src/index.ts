@@ -23,11 +23,8 @@ let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
 app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
 
 app.get('/status', async (_, res) => {
-  const currentDownload = getCurrentDownload();
-  const currentTranscode = getCurrentTranscode();
-
-  await Promise.all([currentDownload, currentTranscode]);
-
+  const currentDownload = await getCurrentDownload();
+  const currentTranscode = await getCurrentTranscode();
   const waitingForDownloadCount = getWaitingForDownloadCount();
   const waitingForTranscodeCount = getWaitingForTranscodeCount();
 

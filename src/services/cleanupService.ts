@@ -9,22 +9,24 @@ const CLEANUP_INTERVAL = z
 const videosToKeep: Set<string> = new Set<string>();
 let lastUpdatedOn = new Date();
 
-setTimeout(() => {
+setTimeout(async () => {
   // If not updated in the last 4 hours, skip cleanup
   if (new Date().getTime() - lastUpdatedOn.getTime() > 14400000) return;
 
-  fs.readdir(CONTENT_DIRECTORY, (_, files) => {
-    console.log('Cleaning up any old video files');
+  console.log('Cleaning up any old video files');
 
-    files.forEach((file) => {
+  const files = await fs.promises.readdir(CONTENT_DIRECTORY);
+
+  await Promise.all(
+    files.map((file) => {
       const videoId = file.replace(/^([^.]+)\..*$/, '$1');
-      if (!videosToKeep.has(videoId)) {
-        fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`);
-      }
-    });
+      return videosToKeep.has(videoId)
+        ? Promise.resolve()
+        : fs.promises.unlink(`${CONTENT_DIRECTORY}/${file}`);
+    })
+  );
 
-    videosToKeep.clear();
-  });
+  videosToKeep.clear();
 }, CLEANUP_INTERVAL * 86400000);
 
 const addVideoToKeep = (videoId: string) => {
@@ -32,15 +34,18 @@ const addVideoToKeep = (videoId: string) => {
   videosToKeep.add(videoId);
 };
 
-const cleanupTempFiles = () =>
-  fs.readdir(CONTENT_DIRECTORY, (_, files) => {
-    console.log('Removing any temp files');
+const cleanupTempFiles = async () => {
+  console.log('Removing any temp files');
+  const files = await fs.promises.readdir(CONTENT_DIRECTORY);
+
+  await Promise.all(
     files
       .filter(
         (file) =>
           file.endsWith('.temp') || file.endsWith('.download') || file.endsWith('.transcode')
       )
-      .forEach((file) => fs.unlinkSync(`${CONTENT_DIRECTORY}/${file}`));
-  });
+      .map((file) => fs.promises.unlink(`${CONTENT_DIRECTORY}/${file}`))
+  );
+};
 
 export { addVideoToKeep, cleanupTempFiles };

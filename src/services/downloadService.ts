@@ -51,7 +51,7 @@ setInterval(async () => {
         `Waiting For Transcode To Finish (Transcode queue contains ${transcodeQueue.length} videos)`
       );
     } else {
-      transcodeVideo(transcodeQueue.shift()!);
+      await transcodeVideo(transcodeQueue.shift()!);
     }
   }
 }, 30000);
@@ -77,10 +77,10 @@ const downloadVideo = (videoId: string): void => {
   });
 };
 
-const transcodeVideo = (videoId: string): void => {
+const transcodeVideo = async (videoId: string) => {
   console.log(`Starting Transcode: ${videoId}`);
 
-  fs.writeFileSync(`${CONTENT_DIRECTORY}/${videoId}.transcode`, '');
+  await fs.promises.writeFile(`${CONTENT_DIRECTORY}/${videoId}.transcode`, '');
 
   if (!EXTERNAL_TRANSCODER) {
     const videoDownloadProcess = spawn('sh', ['./transcodeVideos.sh', CONTENT_DIRECTORY]);
@@ -96,23 +96,30 @@ const transcodeVideo = (videoId: string): void => {
   }
 };
 
-const addVideosToQueue = (videoList: string[]): void => {
+const addVideosToQueue = async (videoList: string[]) => {
   console.log(`Received Updated Video List: ${videoList.find(() => true)}`);
 
-  videoList.slice(0, Math.min(videoList.length, VIDEOS_PER_FEED)).forEach((videoId) => {
-    addVideoToKeep(videoId);
+  const videosToDownload = videoList.slice(0, Math.min(videoList.length, VIDEOS_PER_FEED));
 
-    if (
-      !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.m3u8`) &&
-      !fs.existsSync(`${CONTENT_DIRECTORY}/${videoId}.temp`) &&
-      !downloadQueue.find((x) => x === videoId)
-    ) {
-      downloadQueue.push(videoId);
-      console.log(
-        `Added Video To Download Queue: ${videoId} (Download queue contains ${downloadQueue.length} videos)`
-      );
-    }
-  });
+  await Promise.all(
+    videosToDownload.map(async (videoId) => {
+      addVideoToKeep(videoId);
+
+      const videoIsAlreadyAdded =
+        !!downloadQueue.find((v) => v === videoId) ||
+        !!transcodeQueue.find((v) => v === videoId) ||
+        !!(await fs.promises.stat(`${CONTENT_DIRECTORY}/${videoId}.m3u8`).catch(() => false)) ||
+        !!(await fs.promises.stat(`${CONTENT_DIRECTORY}/${videoId}.download`).catch(() => false)) ||
+        !!(await fs.promises.stat(`${CONTENT_DIRECTORY}/${videoId}.transcode`).catch(() => false));
+
+      if (!videoIsAlreadyAdded) {
+        downloadQueue.push(videoId);
+        console.log(
+          `Added Video To Download Queue: ${videoId} (Download queue contains ${downloadQueue.length} videos)`
+        );
+      }
+    })
+  );
 
   console.log(`Processed Video List: ${videoList.find(() => true)}`);
 };

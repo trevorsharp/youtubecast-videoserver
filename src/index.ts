@@ -62,7 +62,7 @@ app.post('/', async (req, res) => {
 
     if (!request.success) return res.status(400).send();
 
-    addVideosToQueue(request.data);
+    await addVideosToQueue(request.data);
 
     res.status(200).send();
   } catch (error) {
@@ -70,7 +70,7 @@ app.post('/', async (req, res) => {
   }
 });
 
-app.get('/:videoId', (req, res) => {
+app.get('/:videoId', async (req, res) => {
   try {
     const videoId = req.params.videoId;
 
@@ -78,7 +78,9 @@ app.get('/:videoId', (req, res) => {
 
     const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
 
-    if (!fs.existsSync(videoFilePath)) return res.status(404).send();
+    const videoExists = !!(await fs.promises.stat(videoFilePath).catch(() => false));
+
+    if (!videoExists) return res.status(404).send();
 
     res.status(200).send(videoFilePath);
   } catch (error) {
@@ -87,6 +89,6 @@ app.get('/:videoId', (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-cleanupTempFiles();
+void cleanupTempFiles();
 
 export { CONTENT_DIRECTORY };

@@ -15,9 +15,11 @@ COPY ./src ./src
 COPY ./tsconfig.json ./tsconfig.json
 RUN yarn build
 
-COPY ./downloadVideos.sh ./downloadVideos.sh
+COPY ./downloadVideo.sh ./downloadVideo.sh
+COPY ./transcodeVideos.sh ./transcodeVideos.sh
 
-RUN chmod +x ./downloadVideos.sh
+RUN chmod +x ./downloadVideo.sh
+RUN chmod +x ./transcodeVideos.sh
 
 EXPOSE 80
 

@@ -4,7 +4,7 @@ downloadDirectory="$DOWNLOAD_FOLDER"
 contentDirectory="$CONTENT_FOLDER"
 
 if [ ! -n "$downloadDirectory" ]; then
-    downloadDirectory="/download"
+    downloadDirectory="/content"
 fi
 
 if [ ! -n "$contentDirectory" ]; then

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { addVideoToKeep } from './cleanupService';
 import { CONTENT_DIRECTORY } from '..';
 
-const DOWNLOAD_DIRECTORY = process.env.DOWNLOAD_FOLDER ?? '/download';
+const DOWNLOAD_DIRECTORY = process.env.DOWNLOAD_FOLDER ?? '/content';
 fs.mkdirSync(DOWNLOAD_DIRECTORY, { recursive: true });
 
 z.string()

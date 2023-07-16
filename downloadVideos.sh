@@ -4,7 +4,7 @@ downloadDirectory="$DOWNLOAD_FOLDER"
 maxHeight=$VIDEO_QUALITY
 
 if [ ! -n "$downloadDirectory" ]; then
-    downloadDirectory="/download"
+    downloadDirectory="/content"
 fi
 
 

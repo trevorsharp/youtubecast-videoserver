@@ -4,6 +4,7 @@ import { addVideoToKeep } from './cleanupService';
 import { CONTENT_DIRECTORY } from '..';
 
 const DOWNLOAD_DIRECTORY = process.env.DOWNLOAD_FOLDER ?? '/download';
+fs.mkdirSync(DOWNLOAD_DIRECTORY, { recursive: true });
 
 z.string()
   .regex(/^(2160|1440|1080|720|480|360).*$/)

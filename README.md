@@ -43,8 +43,8 @@ services:
       - ./cookies.txt:/app/cookies.txt
       - ./log:/var/log
     environment:
-      - CONTENT_FOLDER="/content"
-      - DOWNLOAD_FOLDER="/download"
+      - 'CONTENT_FOLDER=/content'
+      - 'DOWNLOAD_FOLDER=/download'
       - VIDEO_QUALITY=2160
       - VIDEOS_PER_FEED=3
       - CLEANUP_INTERVAL=1

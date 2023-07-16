@@ -5,6 +5,7 @@ import { addVideosToQueue, getStatus, reQueueUnfinishedVideos } from './services
 
 const PORT = 80;
 const CONTENT_DIRECTORY = process.env.CONTENT_FOLDER ?? '/content';
+fs.mkdirSync(CONTENT_DIRECTORY, { recursive: true });
 
 const app = express();
 app.use(express.json());

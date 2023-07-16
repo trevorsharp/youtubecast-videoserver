@@ -22,9 +22,9 @@ for file in "$downloadDirectory"/*.download.queue; do
 
         mv "$file" "$downloadDirectory/$videoId.download"
 
-        echo -e "\n----------------------------\n"
+        echo -e "\n-------------------------------\n"
         echo "Starting Download ($videoId)"
-        echo -e "\n----------------------------\n"
+        echo -e "\n-------------------------------\n"
 
         if [ -e cookies.txt ]
         then
@@ -55,8 +55,8 @@ for file in "$downloadDirectory"/*.download.queue; do
 
         mv "$downloadDirectory/$videoId.download" "$downloadDirectory/$videoId.transcode.queue"
 
-        echo -e "\n----------------------------\n"
+        echo -e "\n-------------------------------\n"
         echo "Finished Download ($videoId)"
-        echo -e "\n----------------------------\n"
+        echo -e "\n-------------------------------\n"
     fi
 done

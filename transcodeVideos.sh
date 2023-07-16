@@ -2,6 +2,8 @@
 
 downloadDirectory="$DOWNLOAD_FOLDER"
 contentDirectory="$CONTENT_FOLDER"
+preset="$PRESET"
+crf="$CRF"
 
 if [ ! -n "$downloadDirectory" ]; then
     downloadDirectory="/content"
@@ -9,6 +11,14 @@ fi
 
 if [ ! -n "$contentDirectory" ]; then
     contentDirectory="/content"
+fi
+
+if [ ! -n "$preset" ]; then
+    preset=veryfast
+fi
+
+if [ ! -n "$crf" ]; then
+    preset="23"
 fi
 
 mkdir -p "$downloadDirectory"
@@ -56,7 +66,8 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 -i "$downloadDirectory/$videoId.audio" \
                 -c:v libx264 \
                 -c:a copy \
-                -preset veryfast \
+                -preset $preset \
+                -crf $crf \
                 -r 30 \
                 -f hls \
                 -hls_playlist_type vod \

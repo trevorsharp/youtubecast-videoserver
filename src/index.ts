@@ -9,7 +9,7 @@ fs.mkdirSync(CONTENT_DIRECTORY, { recursive: true });
 
 const app = express();
 app.use(express.json());
-app.use(CONTENT_DIRECTORY, express.static(`${CONTENT_DIRECTORY}/`));
+app.use("/content", express.static(`${CONTENT_DIRECTORY}/`));
 
 let isTemporarilyDisabled = false;
 let temporarilyDisableTimeout: NodeJS.Timeout | undefined;

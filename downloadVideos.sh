@@ -28,7 +28,7 @@ for file in "$downloadDirectory"/*.download.queue; do
         then
             yt-dlp \
                 -f "bv[height<=${maxHeight}]" \
-                -S "height,ext" \
+                -S "height,ext,+tbr" \
                 -o "$downloadDirectory/%(id)s.video" \
                 --cookies cookies.txt \
                 "https://youtube.com/watch?v=$videoId"
@@ -41,7 +41,7 @@ for file in "$downloadDirectory"/*.download.queue; do
         else
             yt-dlp \
                 -f "bv[height<=${maxHeight}]" \
-                -S "height,ext" \
+                -S "height,ext,+tbr" \
                 -o "$downloadDirectory/%(id)s.video" \
                 "https://youtube.com/watch?v=$videoId"
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-downloadDirectory=$DOWNLOAD_FOLDER
+downloadDirectory="$DOWNLOAD_FOLDER"
 maxHeight=$VIDEO_QUALITY
 
 if [ ! -n "$downloadDirectory" ]; then

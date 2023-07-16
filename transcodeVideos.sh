@@ -1,7 +1,7 @@
 #!/bin/bash
 
-downloadDirectory=$DOWNLOAD_FOLDER
-contentDirectory=$CONTENT_FOLDER
+downloadDirectory="$DOWNLOAD_FOLDER"
+contentDirectory="$CONTENT_FOLDER"
 
 if [ ! -n "$downloadDirectory" ]; then
     downloadDirectory="/download"

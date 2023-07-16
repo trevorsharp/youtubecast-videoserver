@@ -1,7 +1,15 @@
 #!/bin/bash
 
-downloadDirectory="/download"
-contentDirectory="/content"
+downloadDirectory=$DOWNLOAD_FOLDER
+contentDirectory=$CONTENT_FOLDER
+
+if [ ! -n "$downloadDirectory" ]; then
+    downloadDirectory="/download"
+fi
+
+if [ ! -n "$contentDirectory" ]; then
+    contentDirectory="/content"
+fi
 
 mkdir -p "$downloadDirectory"
 mkdir -p "$contentDirectory"

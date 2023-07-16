@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { addVideosToQueue, getStatus, reQueueUnfinishedVideos } from './services/downloadService';
 
 const PORT = 80;
-const CONTENT_DIRECTORY = '/content';
+const CONTENT_DIRECTORY = process.env.CONTENT_FOLDER ?? '/content';
 
 const app = express();
 app.use(express.json());

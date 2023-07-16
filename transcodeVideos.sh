@@ -26,7 +26,9 @@ for file in "$downloadDirectory"/*.transcode.queue; do
 
         mv "$file" "$downloadDirectory/$videoId.transcode"
 
+        echo -e "\n-----------------------------\n"
         echo "Starting Transcode ($videoId)"
+        echo -e "\n-----------------------------\n"
         
         videoCodec=$(ffprobe \
             -v error \
@@ -72,6 +74,8 @@ for file in "$downloadDirectory"/*.transcode.queue; do
         rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio"
         rm "$downloadDirectory/$videoId.transcode"
 
+        echo -e "\n-----------------------------\n"
         echo "Finished Transcode ($videoId)"
+        echo -e "\n-----------------------------\n"
     fi
 done

@@ -65,7 +65,7 @@ app.get('/:videoId', async (req, res) => {
 
     if (!videoExists) return res.status(404).send();
 
-    res.status(200).send(videoFilePath);
+    res.status(200).send(`/content/${videoId}.m3u8`);
   } catch (error) {
     res.status(500).send(error);
   }

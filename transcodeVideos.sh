@@ -24,7 +24,7 @@ for file in "$downloadDirectory"/*.transcode.queue; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)
 
-        mv $file "$downloadDirectory/$videoId.transcode"
+        mv "$file" "$downloadDirectory/$videoId.transcode"
 
         echo "Starting to transcode $videoId"
         

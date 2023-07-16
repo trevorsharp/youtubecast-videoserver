@@ -20,7 +20,7 @@ for file in "$downloadDirectory"/*.download.queue; do
     if [[ -f "$file" ]]; then
         videoId=$(basename "$file" | cut -d '.' -f 1)
 
-        mv $file "$downloadDirectory/$videoId.download"
+        mv "$file" "$downloadDirectory/$videoId.download"
 
         echo "Starting to download $videoId"
 

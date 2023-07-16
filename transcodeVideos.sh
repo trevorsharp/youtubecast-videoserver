@@ -62,11 +62,13 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 "$downloadDirectory/$videoId.m3u8"
         fi
 
-        rsync -avh "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"
-        rsync -avh "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
+        if [ "$downloadDirectory" != "$contentDirecotry" ]; then
+            rsync -avh "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"
+            rsync -avh "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
+            rm "$downloadDirectory/$videoId.ts" "$downloadDirectory/$videoId.m3u8"
+        fi
 
         rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio"
-        rm "$downloadDirectory/$videoId.ts" "$downloadDirectory/$videoId.m3u8"
         rm "$downloadDirectory/$videoId.transcode"
 
         echo "Finished transcoding $videoId"

@@ -66,6 +66,7 @@ for file in "$downloadDirectory"/*.transcode.queue; do
         rsync -avh "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
 
         rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio"
+        rm "$downloadDirectory/$videoId.ts" "$downloadDirectory/$videoId.m3u8"
         rm "$downloadDirectory/$videoId.transcode"
 
         echo "Finished transcoding $videoId"

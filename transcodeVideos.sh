@@ -26,7 +26,7 @@ for file in "$downloadDirectory"/*.transcode.queue; do
 
         mv "$file" "$downloadDirectory/$videoId.transcode"
 
-        echo "Starting to transcode $videoId"
+        echo "Starting Transcode ($videoId)"
         
         videoCodec=$(ffprobe \
             -v error \
@@ -62,15 +62,16 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 "$downloadDirectory/$videoId.m3u8"
         fi
 
-        if [ "$downloadDirectory" != "$contentDirecotry" ]; then
+        if [[ "$downloadDirectory" != "$contentDirecotry" ]]; then
             rsync -avh "$downloadDirectory/$videoId.ts" "$contentDirectory/$videoId.ts"
             rsync -avh "$downloadDirectory/$videoId.m3u8" "$contentDirectory/$videoId.m3u8"
+            
             rm "$downloadDirectory/$videoId.ts" "$downloadDirectory/$videoId.m3u8"
         fi
 
         rm "$downloadDirectory/$videoId.video" "$downloadDirectory/$videoId.audio"
         rm "$downloadDirectory/$videoId.transcode"
 
-        echo "Finished transcoding $videoId"
+        echo "Finished Transcode ($videoId)"
     fi
 done

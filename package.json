@@ -1,6 +1,7 @@
 {
   "name": "youtubecast-videoserver",
   "version": "1.0.0",
+  "license": "MIT",
   "scripts": {
     "build": "rm -rf ./build && tsc --build tsconfig.json && cp ./src/index.html ./build/index.html",
     "start": "node ./build/index.js"

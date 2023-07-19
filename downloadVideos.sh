@@ -26,19 +26,19 @@ for file in "$downloadDirectory"/*.download.queue; do
         echo "Starting Download ($videoId)"
         echo -e "\n-------------------------------\n"
 
-        if [ -e cookies.txt ]
+        if [ -e /app/cookies.txt ]
         then
             yt-dlp \
                 -f "bv[height<=${maxHeight}]" \
                 -S "height,ext,+tbr" \
                 -o "$downloadDirectory/%(id)s.video" \
-                --cookies cookies.txt \
+                --cookies /app/cookies.txt \
                 "https://youtube.com/watch?v=$videoId"
 
             yt-dlp \
                 -f "ba[ext=m4a]" \
                 -o "$downloadDirectory/%(id)s.audio" \
-                --cookies cookies.txt \
+                --cookies /app/cookies.txt \
                 "https://youtube.com/watch?v=$videoId"
         else
             yt-dlp \

@@ -37,7 +37,9 @@ app.post('/disable', async (_, res) => {
 
   if (temporarilyDisableTimeout) clearTimeout(temporarilyDisableTimeout);
 
-  temporarilyDisableTimeout = setTimeout(() => (isTemporarilyDisabled = false), 5 * 60 * 1000);
+  temporarilyDisableTimeout = setTimeout(() => {
+    isTemporarilyDisabled = false;
+  }, 5 * 60 * 1000);
 
   res.status(200).send(true);
 });
@@ -61,7 +63,7 @@ app.get('/:videoId', async (req, res) => {
     const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
 
     const videoExists =
-      isTemporarilyDisabled || !!(await fs.promises.stat(videoFilePath).catch(() => false));
+      !isTemporarilyDisabled && !!(await fs.promises.stat(videoFilePath).catch(() => false));
 
     if (!videoExists) return res.status(404).send();
 

@@ -40,7 +40,7 @@ services:
     volumes:
       - ./content:/content
       - ./download:/download
-      - ./cookies.txt:/app/cookies.txt
+      - ./cookies.txt:/cookies.txt
       - ./log:/var/log
     environment:
       - 'CONTENT_FOLDER=/content'
@@ -56,7 +56,7 @@ services:
 4. Add the maximum quality to download based on video height (`2160`, `1440`, `1080`, `720`, `480`, or `360`)
 5. Add the minimum number of videos to keep downloaded per feed (at least 1)
 6. Add the interval for how frequently to cleanup old video files (in days / at least 1)
-7. Optional - Point the file for `/app/cookies.txt` to where you are storing a cookies.txt file (used for members-only content)
+7. Optional - Point the file for `/cookies.txt` to where you are storing a cookies.txt file (used for members-only content)
 8. Optional - Point the volume for `/var/log` to wherever you want to store additional logs for downloading and transcoding. This is useful when debugging.
 
 ### cookies.txt (Optional)

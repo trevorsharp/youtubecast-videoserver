@@ -7,8 +7,6 @@ RUN set -x && \
   wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
   chmod a+x /usr/bin/yt-dlp
 
-WORKDIR /app
-
 COPY ./package.json ./package.json
 COPY ./bun.lockb ./bun.lockb
 RUN bun install
@@ -33,4 +31,5 @@ CMD yt-dlp -U && \
   touch /var/log/download.log /var/log/transcode.log && \
   cron && \
   crontab /etc/cron.d/download-transcode-cron && \
+  (cp /app/cookies.txt /cookies.txt || true) && \
   bun start

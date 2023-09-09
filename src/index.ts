@@ -1,15 +1,15 @@
 import fs from 'fs';
-import express from 'express';
+import { Hono } from 'hono';
+import { serveStatic } from 'hono/bun';
 import { z } from 'zod';
 import { addVideosToQueue, getStatus, reQueueUnfinishedVideos } from './services/downloadService';
 
-const PORT = 80;
-const CONTENT_DIRECTORY = process.env.CONTENT_FOLDER ?? '/content';
-fs.mkdirSync(CONTENT_DIRECTORY, { recursive: true });
+const PORT = z
+  .preprocess((x) => (typeof x === 'string' ? parseInt(x) : x), z.number())
+  .parse(process.env.PORT ?? 80);
 
-const app = express();
-app.use(express.json());
-app.use('/content', express.static(`${CONTENT_DIRECTORY}/`));
+export const CONTENT_DIRECTORY = process.env.CONTENT_FOLDER ?? '/content';
+fs.mkdirSync(CONTENT_DIRECTORY, { recursive: true });
 
 let isTemporarilyDisabled = false;
 let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
@@ -17,9 +17,19 @@ let temporarilyDisableTimeout: NodeJS.Timeout | undefined;
 const formatVideoCount = (count: number) =>
   count === 0 ? 'No Videos' : count === 1 ? '1 Video' : `${count} Videos`;
 
-app.get('/', async (_, res) => res.sendFile('/app/build/index.html'));
+const app = new Hono();
 
-app.get('/status', async (_, res) => {
+app.use(
+  '/content/*',
+  serveStatic({
+    root: `${CONTENT_DIRECTORY}`,
+    rewriteRequestPath: (path) => path.replace('content/', ''),
+  })
+);
+
+app.get('/', serveStatic({ path: './src/index.html' }));
+
+app.get('/status', async (c) => {
   const { currentDownload, currentTranscode, waitingForDownloadCount, waitingForTranscodeCount } =
     await getStatus();
 
@@ -29,10 +39,10 @@ app.get('/status', async (_, res) => {
     `Current Transcode:  ${currentTranscode ?? 'None'}\n` +
     `${formatVideoCount(waitingForTranscodeCount)} Waiting For Transcode`;
 
-  res.status(200).send(status);
+  return c.text(status);
 });
 
-app.post('/disable', async (_, res) => {
+app.post('/disable', async (c) => {
   isTemporarilyDisabled = true;
 
   if (temporarilyDisableTimeout) clearTimeout(temporarilyDisableTimeout);
@@ -41,39 +51,45 @@ app.post('/disable', async (_, res) => {
     isTemporarilyDisabled = false;
   }, 5 * 60 * 1000);
 
-  res.status(200).send(true);
+  return c.text('Disabled', 200);
 });
 
-app.post('/', async (req, res) => {
+app.post('/', async (c) => {
   try {
-    const request = z.array(z.string().regex(/^[A-Z0-9_\-]{11}$/i)).safeParse(req.body);
-    if (!request.success) return res.status(400).send();
+    const request = await c.req
+      .json()
+      .then((requestBody) =>
+        z.array(z.string().regex(/^[A-Z0-9_\-]{11}$/i)).safeParse(requestBody)
+      );
+    if (!request.success) return c.text('Bad Request', 400);
 
     await addVideosToQueue(request.data);
 
-    res.status(200).send();
+    return c.text('Processed Video List');
   } catch (error) {
-    res.status(500).send(error);
+    return c.text(error as string, 500);
   }
 });
 
-app.get('/:videoId', async (req, res) => {
+app.get('/:videoId', async (c) => {
   try {
-    const videoId = req.params.videoId;
+    const videoId = c.req.param('videoId');
     const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
 
     const videoExists =
       !isTemporarilyDisabled && !!(await fs.promises.stat(videoFilePath).catch(() => false));
 
-    if (!videoExists) return res.status(404).send();
+    if (!videoExists) return c.text('Video Not Found', 404);
 
-    res.status(200).send(`/content/${videoId}.m3u8`);
+    return c.text(`/content/${videoId}.m3u8`);
   } catch (error) {
-    res.status(500).send(error);
+    return c.text(error as string, 500);
   }
 });
 
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 void reQueueUnfinishedVideos();
 
-export { CONTENT_DIRECTORY };
+export default {
+  fetch: app.fetch,
+  port: PORT ?? 80,
+};

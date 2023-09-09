@@ -3,18 +3,17 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "rm -rf ./build && tsc --build tsconfig.json && cp ./src/index.html ./build/index.html",
-    "start": "node ./build/index.js"
+    "dev": "bun --hot ./src/index.ts",
+    "start": "bun ./src/index.ts",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "express": "4.18.1",
+    "hono": "3.5.8",
     "zod": "3.17.10"
   },
   "devDependencies": {
-    "@types/express": "4.17.13",
-    "@types/node": "18.6.2",
+    "bun-types": "1.0.1",
     "prettier": "2.7.1",
-    "ts-node": "10.9.1",
     "typescript": "4.7.4"
   }
 }

@@ -1,6 +1,8 @@
-FROM node:lts-alpine
+FROM oven/bun
 
-RUN apk add --no-cache yarn ffmpeg python3 py3-pip bash rsync
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends ffmpeg python3 python3-pip bash rsync wget cron
+
 RUN set -x && \
   wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
   chmod a+x /usr/bin/yt-dlp
@@ -8,12 +10,11 @@ RUN set -x && \
 WORKDIR /app
 
 COPY ./package.json ./package.json
-COPY ./yarn.lock ./yarn.lock
-RUN yarn
+COPY ./bun.lockb ./bun.lockb
+RUN bun install
 
 COPY ./src ./src
 COPY ./tsconfig.json ./tsconfig.json
-RUN yarn build
 
 COPY ./downloadVideos.sh ./downloadVideos.sh
 COPY ./transcodeVideos.sh ./transcodeVideos.sh
@@ -21,14 +22,15 @@ COPY ./transcodeVideos.sh ./transcodeVideos.sh
 RUN chmod +x ./downloadVideos.sh
 RUN chmod +x ./transcodeVideos.sh
 
-COPY ./crontab /var/spool/cron/crontabs/root
-RUN chmod 0644 /var/spool/cron/crontabs/root
+COPY ./download-transcode-cron /etc/cron.d/download-transcode-cron
+RUN chmod 0644 /etc/cron.d/download-transcode-cron
+RUN crontab /etc/cron.d/download-transcode-cron
 
 EXPOSE 80
 
-CMD /usr/bin/yt-dlp -U && \
-  /usr/bin/yt-dlp --version && \
-  rm /var/log/download.log /var/log/transcode.log && \
+CMD yt-dlp -U && \
+  yt-dlp --version && \
+  rm -f /var/log/download.log /var/log/transcode.log && \
   touch /var/log/download.log /var/log/transcode.log && \
-  crond && \
-  yarn start
+  cron && \
+  bun start

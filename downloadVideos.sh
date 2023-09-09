@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Checking for downloads"
+
 downloadDirectory="$DOWNLOAD_FOLDER"
 maxHeight=$VIDEO_QUALITY
 

@@ -24,7 +24,6 @@ RUN chmod +x ./transcodeVideos.sh
 
 COPY ./download-transcode-cron /etc/cron.d/download-transcode-cron
 RUN chmod 0644 /etc/cron.d/download-transcode-cron
-RUN crontab /etc/cron.d/download-transcode-cron
 
 EXPOSE 80
 
@@ -33,4 +32,5 @@ CMD yt-dlp -U && \
   rm -f /var/log/download.log /var/log/transcode.log && \
   touch /var/log/download.log /var/log/transcode.log && \
   cron && \
+  crontab /etc/cron.d/download-transcode-cron && \
   bun start

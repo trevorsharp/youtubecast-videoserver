@@ -7,6 +7,8 @@ RUN set -x && \
   wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
   chmod a+x /usr/bin/yt-dlp
 
+WORKDIR /
+
 COPY ./package.json ./package.json
 COPY ./bun.lockb ./bun.lockb
 RUN bun install

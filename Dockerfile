@@ -4,17 +4,17 @@ USER root
 WORKDIR /
 
 RUN apk add --no-cache curl ffmpeg python3 py3-pip bash rsync
+
 RUN set -x && \
   wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
   chmod a+x /usr/bin/yt-dlp
 
-RUN apk add gcompat
-RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
-RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r0/glibc-2.35-r0.apk
-RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r0/glibc-bin-2.35-r0.apk
-RUN apk --no-cache --force-overwrite add glibc-2.35-r0.apk glibc-bin-2.35-r0.apk
-
-RUN /usr/glibc-compat/bin/ldd /lib/ld-linux-x86-64.so.2 
+RUN apk add gcompat && \
+  wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
+  wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r0/glibc-2.35-r0.apk && \
+  wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r0/glibc-bin-2.35-r0.apk && \
+  apk --no-cache --force-overwrite add glibc-2.35-r0.apk glibc-bin-2.35-r0.apk && \
+  /usr/glibc-compat/bin/ldd /lib/ld-linux-x86-64.so.2 
 
 RUN curl -fsSL https://bun.sh/install | bash && \
   cp ~/.bun/bin/bun /usr/bin/bun && \
@@ -44,4 +44,4 @@ CMD /usr/bin/yt-dlp -U && \
   rm -f /var/log/download.log /var/log/transcode.log && \
   touch /var/log/download.log /var/log/transcode.log && \
   crond && \
-  /usr/bin/bun start
+  bun start

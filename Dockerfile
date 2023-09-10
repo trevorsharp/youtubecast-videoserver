@@ -4,7 +4,6 @@ USER root
 WORKDIR /
 
 RUN apk add --no-cache curl ffmpeg python3 py3-pip bash rsync
-
 RUN set -x && \
   wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
   chmod a+x /usr/bin/yt-dlp
@@ -44,4 +43,4 @@ CMD /usr/bin/yt-dlp -U && \
   rm -f /var/log/download.log /var/log/transcode.log && \
   touch /var/log/download.log /var/log/transcode.log && \
   crond && \
-  bun start
+  /usr/bin/bun start

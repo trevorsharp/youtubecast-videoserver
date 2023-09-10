@@ -1,18 +1,28 @@
-FROM oven/bun
-
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends ffmpeg python3 python3-pip bash rsync wget cron
-
-RUN set -x && \
-  wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
-  chmod a+x /usr/bin/yt-dlp
+FROM alpine:latest
 
 USER root
 WORKDIR /
 
+RUN apk add --no-cache curl ffmpeg python3 py3-pip bash rsync
+RUN set -x && \
+  wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
+  chmod a+x /usr/bin/yt-dlp
+
+RUN apk add gcompat
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r0/glibc-2.35-r0.apk
+RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r0/glibc-bin-2.35-r0.apk
+RUN apk --no-cache --force-overwrite add glibc-2.35-r0.apk glibc-bin-2.35-r0.apk
+
+RUN /usr/glibc-compat/bin/ldd /lib/ld-linux-x86-64.so.2 
+
+RUN curl -fsSL https://bun.sh/install | bash && \
+  cp ~/.bun/bin/bun /usr/bin/bun && \
+  chmod a+x /usr/bin/bun
+
 COPY ./package.json ./package.json
 COPY ./bun.lockb ./bun.lockb
-RUN bun install
+RUN /usr/bin/bun install
 
 COPY ./src ./src
 COPY ./tsconfig.json ./tsconfig.json
@@ -23,16 +33,15 @@ COPY ./transcodeVideos.sh ./transcodeVideos.sh
 RUN chmod +x ./downloadVideos.sh
 RUN chmod +x ./transcodeVideos.sh
 
-COPY ./download-transcode-cron /etc/cron.d/download-transcode-cron
-RUN chmod 0644 /etc/cron.d/download-transcode-cron
-RUN crontab /etc/cron.d/download-transcode-cron
+COPY ./crontab /var/spool/cron/crontabs/root
+RUN chmod 0644 /var/spool/cron/crontabs/root
 
 EXPOSE 80
 
-CMD yt-dlp -U && \
-  yt-dlp --version && \
+CMD /usr/bin/yt-dlp -U && \
+  /usr/bin/yt-dlp --version && \
   (cp /app/cookies.txt /cookies.txt || true) && \
   rm -f /var/log/download.log /var/log/transcode.log && \
   touch /var/log/download.log /var/log/transcode.log && \
-  cron && \
-  bun start
+  crond && \
+  /usr/bin/bun start

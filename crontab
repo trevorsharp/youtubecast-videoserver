@@ -1,0 +1,2 @@
+* * * * * /bin/bash /downloadVideos.sh >> /var/log/download.log 2>&1
+* * * * * /bin/bash /transcodeVideos.sh >> /var/log/transcode.log 2>&1

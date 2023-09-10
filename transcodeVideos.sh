@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "Checking for transcodes"
-
 downloadDirectory="$DOWNLOAD_FOLDER"
 contentDirectory="$CONTENT_FOLDER"
 preset="$PRESET"

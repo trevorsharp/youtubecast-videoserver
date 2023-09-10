@@ -7,6 +7,7 @@ RUN set -x && \
   wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/bin/yt-dlp && \
   chmod a+x /usr/bin/yt-dlp
 
+USER root
 WORKDIR /
 
 COPY ./package.json ./package.json
@@ -24,14 +25,14 @@ RUN chmod +x ./transcodeVideos.sh
 
 COPY ./download-transcode-cron /etc/cron.d/download-transcode-cron
 RUN chmod 0644 /etc/cron.d/download-transcode-cron
+RUN crontab /etc/cron.d/download-transcode-cron
 
 EXPOSE 80
 
 CMD yt-dlp -U && \
   yt-dlp --version && \
+  (cp /app/cookies.txt /cookies.txt || true) && \
   rm -f /var/log/download.log /var/log/transcode.log && \
   touch /var/log/download.log /var/log/transcode.log && \
   cron && \
-  crontab /etc/cron.d/download-transcode-cron && \
-  (cp /app/cookies.txt /cookies.txt || true) && \
   bun start

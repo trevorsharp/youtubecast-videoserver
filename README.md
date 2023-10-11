@@ -1,13 +1,31 @@
 # YouTubeCast Video Server
 
-Video server to download and host high quality video files for YouTubeCast.  
+Video server to serve high quality video for YouTubeCast.  
 Unfamiliar with YouTubeCast? — Go to [youtubecast.com](https://youtubecast.com) to check it out!
 
 ## Features
 
-- Download YouTube videos at 1080p and above
+- Serve YouTube videos at 1080p and above
 - Automatically download new videos on your server when your YouTubeCast feed updates
-- Serve videos from your server to your podcast app at full quality via YouTubeCast feed
+- Serve videos from YouTube or your server to your podcast app at full quality via YouTubeCast feed
+
+## Quality Options
+
+### Available directly with YouTubeCast
+
+- 720p
+- 360p
+- Audio Only
+
+### Available only with YouTubeCast Video Server
+
+- Adaptive Quality\*
+- 2160p\*
+- 1440p\*
+- 1080p
+- 480p
+
+\*Downloading and transcoding required on server for 1440p and 2160p
 
 ## Self-Hosted Setup Using Docker
 
@@ -15,8 +33,8 @@ Prerequisites:
 
 - Ensure Docker is set up and running on your machine (https://docs.docker.com/get-docker)
 - Set up a hostname that can be used to access your machine from the internet (can use a static IP address as well)
-- Storage space large enough to store many large video files
-- CPU strong enough to transcode videos into h264 (required when using quality above 1080p)
+- Storage space large enough to store many large video files (required for 1440p, 2160p or when downloading is enabled)
+- CPU capable of transcoding videos to H.264 (required for 1440p or 2160p)
 
 To run this application using Docker:
 
@@ -43,21 +61,57 @@ services:
       - ./cookies.txt:/app/cookies.txt
       - ./log:/var/log
     environment:
-      - 'CONTENT_FOLDER=/content'
-      - 'DOWNLOAD_FOLDER=/download'
-      - VIDEO_QUALITY=2160
-      - VIDEOS_PER_FEED=3
-      - CLEANUP_INTERVAL=1
+      - MAX_QUALITY=2160
+      - MAX_DOWNLOADS_PER_FEED=5
+      - ADAPTIVE_QUALITY=1
 ```
 
 1. Create a file named `docker-compose.yml` with the contents above
-2. Point the volume for `/content` to the folder where you want your video files to be stored long-term. This could be on an internal disk or on network- or direct-attached storage.
-3. Point the volume for `/download` to the folder where you want your video files to be stored while downloading and transcoding. For better performance, use a folder on an interal disk. Finished files will be moved from download to content after they finish downloading/transcoding.
-4. Add the maximum quality to download based on video height (`2160`, `1440`, `1080`, `720`, `480`, or `360`)
-5. Add the minimum number of videos to keep downloaded per feed (at least 1)
-6. Add the interval for how frequently to cleanup old video files (in days / at least 1)
-7. Optional - Point the file for `/app/cookies.txt` to where you are storing a cookies.txt file (used for members-only content)
-8. Optional - Point the volume for `/var/log` to wherever you want to store additional logs for downloading and transcoding. This is useful when debugging.
+2. Optional - Point the file for `/app/cookies.txt` to where you are storing a cookies.txt file (used for members-only content)
+3. Optional - Point the volume for `/var/log` to wherever you want to store additional logs for downloading and transcoding. This is useful when debugging.
+
+### Environment Variables
+
+`MAX_QUALITY` - 1440p or 2160p requires downloading and transcoding
+
+- Number (One of `360`, `480`, `720`, `1080`, `1440`, `2160`)
+- Default: `1080`
+- ⚠️ Setting to `2160` or `1440` will significantly increase storage and CPU usage
+
+`CONTENT_FOLDER` - Folder to store and serve video files
+
+- Folder path
+- Default: `/content`
+
+`DOWNLOAD_FOLDER` - Folder to temp store video files while downloading and transcoding
+
+- Folder path
+- Default: `/download`
+- ⚠️ For optimal performance, use a folder on an internal disk and not network- or direct-attached storage
+
+`ADAPTIVE_QUALITY` - Enables players to adapt quality based on network conditions
+
+- Boolean (`0` or `1`)
+- Default: `0`
+
+`MAX_DOWNLOADS_PER_FEED` - Maximum number of videos to have downloaded per feed
+
+- Number (Positive integer or `-1` to keep unlimited number of videos)
+- Default: `-1`
+
+`ALWAYS_DOWNLOAD` - 1080p and below will always download to server instead of streaming
+
+- Boolean (`0` or `1`)
+- Default: `0`
+- ⚠️ Setting to `1` will significantly increase storage and CPU usage
+
+`MAXIMIZE_COMPATIBILITY` - Download and serve full video files instead of HLS streams / Maximizes compatibility with podcast apps
+
+- Boolean (`0` or `1`)
+- Default: `0`
+- Not recommended when `MAX_QUALITY` is `1440` or `2160`
+- Disables `ADAPTIVE_QUALITY`
+- ⚠️ This will significantly increase storage and CPU usage
 
 ### cookies.txt (Optional)
 

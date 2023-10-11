@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "lib": ["es6", "DOM"],
     "allowJs": false,
@@ -10,5 +10,6 @@
     "noImplicitAny": true,
     "esModuleInterop": true,
     "resolveJsonModule": true
-  }
+  },
+  "exclude": ["content/"]
 }

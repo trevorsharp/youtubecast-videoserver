@@ -2,6 +2,11 @@ import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
 import { addVideosToQueue, getStatus, reQueueUnfinishedVideos } from './services/downloadService';
+import { getStreamingFormats } from './services/youtubeService';
+import { getLocalFormats } from './services/contentService';
+import { Quality } from './types/Quality';
+import { VideoFormat } from './types/Formats';
+import { buildStream } from './services/streamService';
 
 const PORT = 80;
 const CONTENT_DIRECTORY = process.env.CONTENT_FOLDER ?? '/content';
@@ -37,9 +42,12 @@ app.post('/disable', async (_, res) => {
 
   if (temporarilyDisableTimeout) clearTimeout(temporarilyDisableTimeout);
 
-  temporarilyDisableTimeout = setTimeout(() => {
-    isTemporarilyDisabled = false;
-  }, 5 * 60 * 1000);
+  temporarilyDisableTimeout = setTimeout(
+    () => {
+      isTemporarilyDisabled = false;
+    },
+    5 * 60 * 1000,
+  );
 
   res.status(200).send(true);
 });
@@ -67,7 +75,34 @@ app.get('/:videoId', async (req, res) => {
 
     if (!videoExists) return res.status(404).send();
 
-    res.status(200).send(`/content/${videoId}.m3u8`);
+    res.status(200).send(`/video/${videoId}.m3u8`);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+app.get('/video/:videoId', async (req, res) => {
+  try {
+    const videoId = req.params.videoId;
+
+    const MAX_QUALITY = 2160;
+    const ADAPTIVE_QUALITY = true;
+
+    const [audioFormat, streamingVideoFormats] = await getStreamingFormats(videoId);
+    const localVideoFormats = await getLocalFormats(videoId);
+
+    const videoFormatMap = new Map<Quality, VideoFormat>();
+
+    streamingVideoFormats.forEach((format) => videoFormatMap.set(format.quality, format));
+    localVideoFormats.forEach((format) => videoFormatMap.set(format.quality, format));
+
+    const videoFormats = [...videoFormatMap.values()].filter(
+      (format) => format.quality <= MAX_QUALITY,
+    );
+
+    const m3u8 = buildStream(videoFormats, audioFormat, ADAPTIVE_QUALITY);
+
+    res.status(200).send(m3u8);
   } catch (error) {
     res.status(500).send(error);
   }

@@ -8,18 +8,14 @@ import { CONTENT_DIRECTORY } from '..';
 const getLocalFormats = async (videoId: string): Promise<VideoFormat[]> => {
   const content = await fs.promises.readdir(CONTENT_DIRECTORY);
 
-  console.log(content.filter((file) => file.startsWith('cB')));
+  console.log(content.filter((file) => file.replace(/^([^.]+)\..*$/, '$1') === videoId));
 
   const videoFile = content.find((file) => file.startsWith('cB') && file.includes('.ts'));
   const playlistFile = content.find((file) => file.startsWith('cB') && file.includes('.m3u8'));
 
-  console.log(videoFile, playlistFile);
-
   if (!videoFile || !playlistFile) return [];
 
   const fileInfo = await probeVideoFile(videoFile);
-
-  console.log(fileInfo);
 
   const stream = fileInfo.streams.find((x) => true);
 

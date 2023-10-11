@@ -8,7 +8,7 @@ import { CONTENT_DIRECTORY } from '..';
 const getLocalFormats = async (videoId: string): Promise<VideoFormat[]> => {
   const content = await fs.promises.readdir(CONTENT_DIRECTORY);
 
-  console.log(content.filter((file) => file.replace(/^([^.]+)\..*$/, '$1') === videoId));
+  console.log(content.filter((file) => file.includes(decodeURI(encodeURI(videoId)))));
 
   const videoFile = content.find((file) => file.startsWith('cB') && file.includes('.ts'));
   const playlistFile = content.find((file) => file.startsWith('cB') && file.includes('.m3u8'));

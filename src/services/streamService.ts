@@ -14,9 +14,7 @@ const buildStream = (
   }"\n\n${videoStreams
     .map(
       (stream) =>
-        `#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=${stream.bitrate},CODECS="${
-          stream.codec
-        }",RESOLUTION=${stream.resolution}${stream.hasAudio ? '' : ',AUDIO="audio"'}\n${stream.url}`
+        `#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=${stream.bitrate},CODECS="${stream.codec}",RESOLUTION=${stream.resolution},AUDIO="audio"\n${stream.url}`
     )
     .join('\n\n')}`;
 };

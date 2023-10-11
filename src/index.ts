@@ -85,6 +85,8 @@ app.get('/video/:videoId', async (req, res) => {
   try {
     const videoId = req.params.videoId;
 
+    console.log(videoId);
+
     const MAX_QUALITY = 2160;
     const ADAPTIVE_QUALITY = true;
 

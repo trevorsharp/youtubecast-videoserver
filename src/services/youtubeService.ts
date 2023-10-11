@@ -34,8 +34,8 @@ const getAudioFormat = (videoInfo: VideoInfo): AudioFormat => {
     .sort((a, b) => b.abr - a.abr)
     .sort(
       (a, b) =>
-        (b.format.toLowerCase().includes('default') ? 1 : 0) -
-        (a.format.toLowerCase().includes('default') ? 1 : 0)
+        (b.format.toLowerCase().includes('original') ? 1 : 0) -
+        (a.format.toLowerCase().includes('original') ? 1 : 0)
     )
     .find((format) => format.vcodec === 'none');
 

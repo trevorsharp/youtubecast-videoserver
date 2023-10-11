@@ -10,6 +10,8 @@ const getLocalFormats = async (videoId: string): Promise<VideoFormat[]> => {
     filename.includes(videoId)
   );
 
+  console.log(content);
+
   const videoFile = content.find((file) => file.includes('.ts'));
   const playlistFile = content.find((file) => file.includes('.m3u8'));
 

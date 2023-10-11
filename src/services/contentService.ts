@@ -3,8 +3,7 @@ import { spawn } from 'child_process';
 import { ProbeInfo, probeInfoSchema } from '../types/ProbeInfo';
 import { VideoFormat } from '../types/Formats';
 import { getQuality } from '../types/Quality';
-
-const CONTENT_DIRECTORY = './content';
+import { CONTENT_DIRECTORY } from '..';
 
 const getLocalFormats = async (videoId: string): Promise<VideoFormat[]> => {
   const content = (await fs.promises.readdir(CONTENT_DIRECTORY)).filter((filename) =>

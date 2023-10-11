@@ -12,6 +12,7 @@ const buildStream = (
   return `#EXTM3U\n#EXT-X-VERSION:3\n\n#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="audio",DEFAULT=YES,AUTOSELECT=YES,URI="${
     audioFormat.url
   }"\n\n${videoStreams
+    .filter((stream) => stream.codec.startsWith('avc'))
     .map(
       (stream) =>
         `#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=${stream.bitrate},CODECS="${stream.codec}",RESOLUTION=${stream.resolution},AUDIO="audio"\n${stream.url}`

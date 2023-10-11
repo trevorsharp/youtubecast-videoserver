@@ -95,11 +95,11 @@ services:
 - Boolean (`0` or `1`)
 - Default: `0`
 
-`MIN_QUALITY` - Minimum quality to allow when adaptive streaming is enabled
+`MIN_QUALITY` - Minimum quality to allow when adaptive quality is enabled
 
 - Number (One of `360`, `480`, `720`, `1080`)
 - Default: `360`
-- ⚠️ Setting to higher value may result in buffering depending on network speed
+- ⚠️ Setting to higher value may result in buffering depending on network conditions
 
 `MAX_DOWNLOADS_PER_FEED` - Maximum number of videos to have downloaded per feed
 

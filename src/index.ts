@@ -89,6 +89,7 @@ app.get('/video/:videoId', async (req, res) => {
 
     const MAX_QUALITY = 2160;
     const ADAPTIVE_QUALITY = true;
+    const MIN_QUALITY = 720;
 
     const [audioFormat, streamingVideoFormats] = await getStreamingFormats(videoId);
     const localVideoFormats = await getLocalFormats(videoId);
@@ -99,7 +100,8 @@ app.get('/video/:videoId', async (req, res) => {
     localVideoFormats.forEach((format) => videoFormatMap.set(format.quality, format));
 
     const videoFormats = [...videoFormatMap.values()].filter(
-      (format) => format.quality <= MAX_QUALITY,
+      (format) =>
+        format.quality <= MAX_QUALITY && (!ADAPTIVE_QUALITY || format.quality >= MIN_QUALITY),
     );
 
     const m3u8 = buildStream(videoFormats, audioFormat, ADAPTIVE_QUALITY);

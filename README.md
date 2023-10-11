@@ -64,6 +64,7 @@ services:
       - MAX_QUALITY=2160
       - MAX_DOWNLOADS_PER_FEED=5
       - ADAPTIVE_QUALITY=1
+      - MIN_QUALITY=720
 ```
 
 1. Create a file named `docker-compose.yml` with the contents above
@@ -72,7 +73,7 @@ services:
 
 ### Environment Variables
 
-`MAX_QUALITY` - 1440p or 2160p requires downloading and transcoding
+`MAX_QUALITY` - Maximum quality of video to serve (1080p and below can be streamed directly from YouTube without requiring downloads on the server)
 
 - Number (One of `360`, `480`, `720`, `1080`, `1440`, `2160`)
 - Default: `1080`
@@ -93,6 +94,12 @@ services:
 
 - Boolean (`0` or `1`)
 - Default: `0`
+
+`MIN_QUALITY` - Minimum quality to allow when adaptive streaming is enabled
+
+- Number (One of `360`, `480`, `720`, `1080`)
+- Default: `360`
+- ⚠️ Setting to higher value may result in buffering depending on network speed
 
 `MAX_DOWNLOADS_PER_FEED` - Maximum number of videos to have downloaded per feed
 

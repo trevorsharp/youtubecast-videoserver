@@ -13,11 +13,11 @@ const buildStream = (
 
   return `#EXTM3U\n#EXT-X-VERSION:3\n\n#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Remote Audio",DEFAULT=YES,AUTOSELECT=YES,URI="${
     audioFormat.url
-  }"\n\n${
+  }"${
     localStream
-      ? `#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="local",NAME="Local Audio",DEFAULT=YES,AUTOSELECT=YES,URI="${localStream.url}\n\n`
+      ? `\n\n#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="local",NAME="Local Audio",DEFAULT=YES,AUTOSELECT=YES,URI="${localStream.url}"`
       : ''
-  }"${videoStreams
+  }\n\n${videoStreams
     .filter((stream) => stream.codec.startsWith('avc'))
     .map(
       (stream) =>

@@ -68,12 +68,14 @@ app.post('/', async (req, res) => {
 app.get('/:videoId', async (req, res) => {
   try {
     const videoId = req.params.videoId;
-    const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
+    // const videoFilePath = `${CONTENT_DIRECTORY}/${videoId}.m3u8`;
 
-    const videoExists =
-      !isTemporarilyDisabled && !!(await fs.promises.stat(videoFilePath).catch(() => false));
+    // const videoExists =
+    //   !isTemporarilyDisabled && !!(await fs.promises.stat(videoFilePath).catch(() => false));
 
-    if (!videoExists) return res.status(404).send();
+    // if (!videoExists) return res.status(404).send();
+
+    if (isTemporarilyDisabled) return res.status(404).send();
 
     res.status(200).send(`/video/${videoId}.m3u8`);
   } catch (error) {

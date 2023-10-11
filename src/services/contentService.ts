@@ -1,9 +1,24 @@
 import fs from 'fs';
 import { spawn } from 'child_process';
-import { ProbeInfo, probeInfoSchema } from '../types/ProbeInfo';
+import { z } from 'zod';
 import { VideoFormat } from '../types/Formats';
 import { getQuality } from '../types/Quality';
 import { CONTENT_DIRECTORY } from '..';
+
+const probeInfoSchema = z.object({
+  format: z.object({
+    bit_rate: z.string(),
+  }),
+  streams: z.array(
+    z.object({
+      codec_name: z.string(),
+      width: z.number(),
+      height: z.number(),
+    })
+  ),
+});
+
+type ProbeInfo = z.infer<typeof probeInfoSchema>;
 
 const getLocalFormats = async (videoId: string): Promise<VideoFormat[]> => {
   const content = (await fs.promises.readdir(CONTENT_DIRECTORY)).filter((file) =>

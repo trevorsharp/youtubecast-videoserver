@@ -91,6 +91,9 @@ app.get('/video/:videoId', async (req, res) => {
     const [audioFormat, streamingVideoFormats] = await getStreamingFormats(videoId);
     const localVideoFormats = await getLocalFormats(videoId);
 
+    console.log(JSON.stringify(streamingVideoFormats));
+    console.log(JSON.stringify(localVideoFormats));
+
     const videoFormatMap = new Map<Quality, VideoFormat>();
 
     streamingVideoFormats.forEach((format) => videoFormatMap.set(format.quality, format));
@@ -100,9 +103,11 @@ app.get('/video/:videoId', async (req, res) => {
       (format) => format.quality <= MAX_QUALITY,
     );
 
+    console.log(JSON.stringify(videoFormats));
+
     const m3u8 = buildStream(videoFormats, audioFormat, ADAPTIVE_QUALITY);
 
-    res.status(200).send(m3u8);
+    res.status(200).contentType('video/mp4').send(m3u8);
   } catch (error) {
     res.status(500).send(error);
   }

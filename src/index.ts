@@ -89,7 +89,7 @@ app.get('/video/:videoId', async (req, res) => {
 
     const MAX_QUALITY = 2160;
     const ADAPTIVE_QUALITY = true;
-    const MIN_QUALITY = 720;
+    const MIN_QUALITY = 2160;
 
     const [audioFormat, streamingVideoFormats] = await getStreamingFormats(videoId);
     const localVideoFormats = await getLocalFormats(videoId);

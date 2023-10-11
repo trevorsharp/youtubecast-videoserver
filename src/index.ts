@@ -91,9 +91,6 @@ app.get('/video/:videoId', async (req, res) => {
     const [audioFormat, streamingVideoFormats] = await getStreamingFormats(videoId);
     const localVideoFormats = await getLocalFormats(videoId);
 
-    console.log(JSON.stringify(audioFormat));
-    console.log(JSON.stringify(localVideoFormats));
-
     const videoFormatMap = new Map<Quality, VideoFormat>();
 
     streamingVideoFormats.forEach((format) => videoFormatMap.set(format.quality, format));

@@ -20,6 +20,14 @@ const videoInfoSchema = z.object({
         .number()
         .nullish()
         .transform((val) => val ?? 0),
+      abr: z
+        .number()
+        .nullish()
+        .transform((val) => val ?? 0),
+      format: z
+        .string()
+        .nullish()
+        .transform((val) => val ?? ''),
     })
   ),
 });

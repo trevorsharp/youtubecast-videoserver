@@ -30,7 +30,14 @@ const getFormats = (videoInfo: VideoInfo) => {
 };
 
 const getAudioFormat = (videoInfo: VideoInfo): AudioFormat => {
-  const audioFormat = videoInfo.formats.find((format) => format.vcodec === 'none');
+  const audioFormat = videoInfo.formats
+    .sort((a, b) => b.abr - a.abr)
+    .sort(
+      (a, b) =>
+        (b.format.toLowerCase().includes('default') ? 1 : 0) -
+        (a.format.toLowerCase().includes('default') ? 1 : 0)
+    )
+    .find((format) => format.vcodec === 'none');
 
   if (!audioFormat) throw 'Could not find compatible audio format';
 
@@ -41,7 +48,7 @@ const getAudioFormat = (videoInfo: VideoInfo): AudioFormat => {
 
 const getVideoFormats = (videoInfo: VideoInfo): VideoFormat[] => {
   const filteredFormats = videoInfo.formats
-    .sort((a, b) => b.height - a.height)
+    .sort((a, b) => b.vbr - a.vbr)
     .sort((a, b) => (b.vcodec.includes('avc') ? 1 : 0) - (a.vcodec.includes('avc') ? 1 : 0));
 
   const videoFormats: VideoFormat[] = [];

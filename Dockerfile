@@ -28,7 +28,7 @@ EXPOSE 80
 
 CMD /usr/bin/yt-dlp -U && \
   /usr/bin/yt-dlp --version && \
-  rm /var/log/download.log /var/log/transcode.log && \
+  rm -f /var/log/download.log /var/log/transcode.log && \
   touch /var/log/download.log /var/log/transcode.log && \
   crond && \
   yarn start

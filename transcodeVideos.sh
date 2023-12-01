@@ -55,6 +55,7 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 -i "$downloadDirectory/$videoId.audio" \
                 -c:v copy \
                 -c:a copy \
+                -sn \
                 -f hls \
                 -hls_playlist_type vod \
                 -hls_flags single_file \
@@ -66,6 +67,7 @@ for file in "$downloadDirectory"/*.transcode.queue; do
                 -i "$downloadDirectory/$videoId.audio" \
                 -c:v libx264 \
                 -c:a copy \
+                -sn \
                 -preset $preset \
                 -crf $crf \
                 -r 30 \

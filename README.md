@@ -29,7 +29,6 @@ To run this application using Docker:
 ### docker-compose.yml
 
 ```
-version: '3'
 services:
   youtubecast-videoserver:
     image: trevorsharp/youtubecast-videoserver:latest

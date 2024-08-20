@@ -4,7 +4,7 @@ import { CONTENT_DIRECTORY } from '..';
 
 const CLEANUP_INTERVAL = z
   .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(0).max(14))
-  .parse(process.env.CLEANUP_INTERVAL);
+  .parse(process.env.CLEANUP_INTERVAL ?? '14');
 
 const videosToKeep: Set<string> = new Set<string>();
 let lastUpdatedOn = new Date();
@@ -24,7 +24,7 @@ if (CLEANUP_INTERVAL > 0) {
         return videosToKeep.has(videoId)
           ? Promise.resolve()
           : fs.promises.unlink(`${CONTENT_DIRECTORY}/${file}`);
-      }),
+      })
     );
 
     videosToKeep.clear();

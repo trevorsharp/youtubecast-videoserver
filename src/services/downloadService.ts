@@ -8,12 +8,13 @@ fs.mkdirSync(DOWNLOAD_DIRECTORY, { recursive: true });
 
 z.string()
   .regex(/^(2160|1440|1080|720|480|360).*$/)
+  .default('1080')
   .transform((x) => parseInt(x.slice(0, 4)))
-  .parse(process.env.VIDEO_QUALITY);
+  .parse(process.env.VIDEO_QUALITY ?? '1080');
 
 const VIDEOS_PER_FEED = z
   .preprocess((x) => parseInt(typeof x === 'string' ? x : ''), z.number().min(1))
-  .parse(process.env.VIDEOS_PER_FEED);
+  .parse(process.env.VIDEOS_PER_FEED ?? '3');
 
 const getStatus = async () => {
   const files = await fs.promises.readdir(DOWNLOAD_DIRECTORY);

@@ -2,10 +2,12 @@ import fs from 'fs';
 import express from 'express';
 import { z } from 'zod';
 import { addVideosToQueue, getStatus, reQueueUnfinishedVideos } from './services/downloadService';
+import { getVideoLink } from './services/streamingService';
 
 const PORT = 80;
 const CONTENT_DIRECTORY = process.env.CONTENT_FOLDER ?? '/content';
 fs.mkdirSync(CONTENT_DIRECTORY, { recursive: true });
+const STREAMING_ONLY = process.env.STREAMING_ONLY?.toLowerCase() === 'true';
 
 const app = express();
 app.use(express.json());
@@ -49,7 +51,7 @@ app.post('/', async (req, res) => {
     const request = z.array(z.string().regex(/^[A-Z0-9_\-]{11}$/i)).safeParse(req.body);
     if (!request.success) return res.status(400).send();
 
-    await addVideosToQueue(request.data);
+    if (!STREAMING_ONLY) await addVideosToQueue(request.data);
 
     res.status(200).send();
   } catch (error) {
@@ -65,7 +67,13 @@ app.get('/:videoId', async (req, res) => {
     const videoExists =
       !isTemporarilyDisabled && !!(await fs.promises.stat(videoFilePath).catch(() => false));
 
-    if (!videoExists) return res.status(404).send();
+    if (!videoExists) {
+      const streamingLink = await getVideoLink(videoId);
+
+      if (!streamingLink) return res.status(404).send('Video Not Found');
+
+      return res.status(200).send(streamingLink);
+    }
 
     res.status(200).send(`/content/${videoId}.m3u8`);
   } catch (error) {

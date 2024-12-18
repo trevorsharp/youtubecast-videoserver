@@ -24,7 +24,7 @@ jobs:
             VERSION=latest
           fi
 
-          TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:${GITHUB_RUN_ID}"
+          TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:${GITHUB_RUN_ID},${DOCKER_IMAGE}:legacy"
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU

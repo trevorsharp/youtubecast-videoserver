@@ -1,7 +1,8 @@
+### ⚠️ This project is no longer in active development. See [YouTubeCast](https://github.com/trevorsharp/youtubecast) for details.
+
 # YouTubeCast Video Server
 
-Video server to download and host high quality video files for YouTubeCast.  
-Unfamiliar with YouTubeCast? — Go to [youtubecast.com](https://youtubecast.com) to check it out!
+Video server to download and host high quality video files for YouTubeCast.
 
 ## Features
 
@@ -31,7 +32,7 @@ To run this application using Docker:
 ```
 services:
   youtubecast-videoserver:
-    image: trevorsharp/youtubecast-videoserver:latest
+    image: trevorsharp/youtubecast-videoserver:legacy
     container_name: youtubecast-videoserver
     restart: unless-stopped
     ports:
